@@ -105,7 +105,7 @@ class AppConfig:
         elif env == "prod":
             return cls(
                 sncf_base_url="https://ressources.data.sncf.com/api/explore/v2.1/catalog/datasets",
-                local_data_dir=Path("/var/data/sncf/backups"),
+                local_data_dir=Path("data/sncf/backups"),
                 local_enabled=True,  # Keep parquet files as backup
                 duckdb_path=None,
                 duckdb_enabled=False,  # Not needed in production
