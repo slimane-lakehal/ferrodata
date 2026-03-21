@@ -14,3 +14,10 @@ wheels/
 
 #data
 data/*
+
+#dbt
+ferrodata/dbt_packages/
+ferrodata/dbt_internal_packages/
+ferrodata/logs/
+ferrodata/target/
+ferrodata/.env
