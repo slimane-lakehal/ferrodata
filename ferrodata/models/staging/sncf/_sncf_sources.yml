@@ -1,0 +1,55 @@
+version: 2
+
+sources:
+  - name: sncf
+    description: "Raw SNCF data from ingestion pipeline"
+
+    schema: raw_sncf
+
+    tables:
+      - name: regularite_tgv
+        description: "Régularité mensuelle TGV par liaisons (AQST) depuis janvier 2018."
+        columns:
+          - name: date
+            description: "Date de la mesure"
+          - name: service
+            description: "National / International"
+          - name: duree_moyenne
+            description: "Durée moyenne du trajet"
+          - name: nb_train_retard_sup_15
+            description: Nombre de trains en retard supérieur à 15min (si liaison concurrencée par vol)
+          - name: prct_cause_externe
+            description: Pourcentage de trains en retard pour causes externes (météo, obstacles, colis suspects, malveillance, mouvements sociaux, etc.)
+          - name: prct_cause_infra
+            description: Pourcentage de trains en retard pour cause infrastructure ferroviaire (maintenance, travaux)
+          - name: prct_cause_gestion_trafic
+            description: Pourcentage de trains en retard pour cause gestion du trafic (circulation sur ligne ferroviaire, interactions réseaux)
+          - name: prct_cause_materiel_roulant
+            description: Pourcentage de trains en retard pour cause matériel roulant
+          - name: prct_cause_gestion_gare
+            description: Pourcentage de trains en retard pour cause de gestion en gare et réutilisation de matériel
+          - name: prct_cause_prise_en_charge_voyageurs
+            description: Pourcentage de trains en retard pour cause de prise en compte voyageurs (affluence, gestions PSH, correspondances)
+
+      - name: regularite_ter
+        description: "Régularité mensuelle TER depuis janvier 2013."
+
+      - name: regularite_intercites
+        description: "Régularité mensuelle des trains Intercités depuis janvier 2014."
+
+      - name: gares
+        description: "Liste des gares du Réseau Ferré National."
+        columns:
+          - name: code_uic
+            description: "Identifiant unique de la gare (UIC)."
+          - name: libelle
+            description: "Nom de la gare."
+          - name: code_ligne
+            description: "Code de la ligne."
+          - name: rg_troncon
+            description: "rang du tronçon."
+          - name: pk
+            description: "point kilométrique de la gare."
+          - name: idreseau
+            description: "Identifiant de la gare dans la base réseau."
+          
