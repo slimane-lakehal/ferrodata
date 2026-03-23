@@ -10,7 +10,7 @@ select
   voyageurs as passengers ,
   code_ligne as line_code,
   rg_troncon as track_number,
-  pk as kilometer_post,
+  pk as kilometer_point,
   commune as city,
   departemen as departement,
   idreseau as network_id,
