@@ -35,22 +35,22 @@ SOURCES = [
     SourceConfig(
         name="regularite_tgv",
         api_dataset_id="regularite-mensuelle-tgv-aqst",
-        description="TGV monthly punctuality data",
+        description="Régularité mensuelle TGV par liaisons (AQST).",
     ),
     SourceConfig(
         name="regularite_ter",
         api_dataset_id="regularite-mensuelle-ter",
-        description="TER monthly punctuality data",
+        description="Régularité mensuelle TER depuis janvier 2013.",
     ),
     SourceConfig(
         name="regularite_intercites",
         api_dataset_id="regularite-mensuelle-intercites",
-        description="Intercités monthly punctuality data",
+        description="Régularité mensuelle des trains Intercités depuis janvier 2014.",
     ),
     SourceConfig(
         name="gares",
         api_dataset_id="liste-des-gares",
-        description="List of train stations in France",
+        description="Liste des gares du Réseau Ferré National.",
     ),
 ]
 
