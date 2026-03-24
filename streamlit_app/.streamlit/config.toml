@@ -1,0 +1,15 @@
+[theme]
+base = "dark"
+primaryColor = "#FF6B6B"
+textColor = "#ffffffeb"
+font = "sans serif"
+chartCategoricalColors = ["#FF6B6B", "#FF8E53", "#FFB366", "#FFD700", "#FFA500", "#FF4500", "#FF0000", "#FF6347", "#FF7F50", "#FF8C00"]
+chartSequentialColors = ["#FF6B6B", "#FF8E53", "#FFB366", "#FFD700", "#FFA500", "#FF4500", "#FF0000", "#FF6347", "#FF7F50", "#FF8C00"]
+[server]
+port = 8501
+enableCORS = false
+enableXsrfProtection = true
+maxUploadSize = 200
+
+[browser]
+gatherUsageStats = false
