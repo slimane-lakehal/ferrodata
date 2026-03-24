@@ -6,7 +6,7 @@ with source as (
 select
     -- Primary identifiers
     date,
-    region,
+    lower(replace(region, '-', ' ')) as region,
 
     -- Train volumes
     nombre_de_trains_programmes as planned_trains,

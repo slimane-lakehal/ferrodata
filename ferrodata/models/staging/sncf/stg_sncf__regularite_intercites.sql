@@ -5,8 +5,8 @@ with source as (
 
 select
     date,
-    depart as departure_station,
-    arrivee as arrival_station,
+    lower(replace(depart, '-', ' ')) as departure_station,
+    lower(replace(arrivee, '-', ' ')) as arrival_station,
 
     nombre_de_trains_programmes as planned_trains,
     nombre_de_trains_ayant_circule as operated_trains,

@@ -5,7 +5,7 @@ with source as (
 
 select  
   code_uic as uic_code,
-  libelle as station_name,
+  lower(replace(libelle, '-', ' ')) as station_name,
   fret,
   voyageurs as passengers ,
   code_ligne as line_code,

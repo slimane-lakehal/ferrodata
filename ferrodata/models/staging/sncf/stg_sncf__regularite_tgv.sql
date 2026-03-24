@@ -7,8 +7,8 @@ select
     -- Primary identifiers
     date,
     service,
-    gare_depart as departure_station,
-    gare_arrivee as arrival_station,
+    lower(replace(gare_depart, '-', ' ')) as departure_station,
+    lower(replace(gare_arrivee, '-', ' ')) as arrival_station,
 
     -- Trip metrics
     duree_moyenne as avg_duration_minutes,
