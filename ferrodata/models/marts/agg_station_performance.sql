@@ -75,7 +75,8 @@ combined_performance as (
     full outer join arrival_performance a
         on d.station_name = a.station_name
         and d.service_type = a.service_type
-)
+),
+combined_performance_enriched as (
 
 select
 
@@ -105,7 +106,11 @@ select
     total_arrivals_cancelled,
     total_delays_at_station,
     round(avg_arrival_punctuality_rate, 2) as avg_arrival_punctuality_rate,
-    round(avg_arrival_cancellation_rate, 2) as avg_arrival_cancellation_rate,
+    round(avg_arrival_cancellation_rate, 2) as avg_arrival_cancellation_rate
+
+    from combined_performance)
+
+    SELECT * ,
 
     -- Overall station performance
     case
@@ -136,4 +141,4 @@ select
     -- Metadata
     current_timestamp as _dbt_loaded_at
 
-from combined_performance
+from combined_performance_enriched

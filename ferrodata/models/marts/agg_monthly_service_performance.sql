@@ -7,7 +7,7 @@
 
 with monthly_metrics as (
     select
-        date_trunc('month', date) as month_start_date,
+        {{date_trunc('month', 'date')}} as month_start_date,
         extract(year from date) as year,
         extract(month from date) as month,
         service_type,

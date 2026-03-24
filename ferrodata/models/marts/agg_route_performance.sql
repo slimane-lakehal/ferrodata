@@ -12,7 +12,6 @@ with route_metrics as (
         service,
         departure_station,
         arrival_station,
-
         -- Date range
         min(date) as first_observation_date,
         max(date) as last_observation_date,
@@ -57,7 +56,7 @@ select
     first_observation_date,
     last_observation_date,
     days_observed,
-    datediff('day', first_observation_date, last_observation_date) + 1 as total_days_in_window,
+    {{datediff('first_observation_date', 'last_observation_date', 'day')}} as total_days_in_window,
 
     -- Volume metrics
     total_trains_planned,
