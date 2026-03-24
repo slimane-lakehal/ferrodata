@@ -1,0 +1,37 @@
+[project]
+name = "ferrodata-app"
+version = "0.1.0"
+description = "SNCF train analytics dashboard - interactive Streamlit application"
+requires-python = ">=3.12"
+
+dependencies = [
+    # Streamlit and core
+    "streamlit>=1.31.0",
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+
+    # Database
+    "duckdb>=1.0.0",
+
+    # Visualization
+    "plotly>=5.18.0",
+    "pydeck>=0.8.1",
+
+    # Utilities
+    "python-dotenv>=1.0.0",
+]
+
+
+[project.scripts]
+# CLI entrypoint for running the app
+ferrodata-app = "streamlit:main"
+
+
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []

@@ -1,0 +1,44 @@
+[project]
+name = "ferrodata-ingestion"
+version = "0.1.0"
+description = "SNCF data ingestion pipeline - fetch from API and load to storage"
+requires-python = ">=3.12"
+
+dependencies = [
+    # Data processing
+    "pandas>=2.1.0",
+    "pyarrow>=14.0.0",
+
+    # Storage backends
+    "duckdb>=1.0.0",
+    "google-cloud-bigquery>=3.40.0",
+
+    # HTTP client
+    "requests>=2.31.0",
+
+    # Configuration
+    "python-dotenv>=1.0.0",
+]
+
+
+[project.scripts]
+# CLI entrypoint
+ferrodata-ingest = "ingestion.main:main"
+
+[build-system]
+requires = ["uv_build>=0.10.9,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
