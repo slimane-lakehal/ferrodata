@@ -21,3 +21,4 @@ ferrodata/dbt_internal_packages/
 ferrodata/logs/
 ferrodata/target/
 ferrodata/.env
+logs/
