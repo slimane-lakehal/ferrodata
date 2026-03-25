@@ -1,6 +1,6 @@
-name: ferrodata
+name: ferrodata_dbt
 
-profile: ferrodata
+profile: ferrodata_dbt
 
 seed-paths: ["seeds"]
 model-paths: ["models"]
@@ -21,8 +21,6 @@ models:
     staging:
       +schema: staging
       +materialized: table
-    intermediate:
-      +materialized: ephemeral
     marts:
       +schema: analytics
       +materialized: table
