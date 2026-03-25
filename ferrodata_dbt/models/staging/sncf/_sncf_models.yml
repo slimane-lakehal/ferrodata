@@ -1,0 +1,213 @@
+version: 2
+
+models:
+  - name: stg_sncf__gares
+    description: Cleaned station master list from SNCF network with standardized names and geographic coordinates
+    columns:
+      - name: uic_code
+        description: Unique International Code for railway stations (primary identifier)
+        data_tests:
+          - unique
+          - not_null
+
+      - name: station_name
+        description: Station name normalized to lowercase with spaces (for joining with punctuality data)
+
+      - name: fret
+        description: Freight service indicator (O=Yes, N=No)
+
+      - name: passengers
+        description: Passenger service indicator (O=Yes, N=No)
+
+      - name: line_code
+        description: Railway line code identifier
+
+      - name: track_number
+        description: Section rank on the railway line
+
+      - name: kilometer_point
+        description: Kilometer point marking station position on the line
+
+      - name: city
+        description: Municipality where the station is located
+
+      - name: departement
+        description: French department name (administrative division)
+
+      - name: network_id
+        description: Internal network identifier for the station
+
+      - name: lon
+        description: Longitude coordinate in WGS84 (for mapping)
+
+      - name: lat
+        description: Latitude coordinate in WGS84 (for mapping)
+
+      - name: _loaded_at
+        description: Timestamp when record was loaded into staging
+
+  - name: stg_sncf__regularite_tgv
+    description: Monthly TGV punctuality metrics by route with delay attribution by cause
+    columns:
+      - name: date
+        description: Month of measurement (first day of month)
+        data_tests:
+          - not_null
+
+      - name: service
+        description: Service type (National or International)
+
+      - name: departure_station
+        description: Origin station name (normalized to lowercase with spaces)
+        data_tests:
+          - not_null
+
+      - name: arrival_station
+        description: Destination station name (normalized to lowercase with spaces)
+        data_tests:
+          - not_null
+
+      - name: avg_duration_minutes
+        description: Average trip duration in minutes for this route
+
+      - name: planned_trains
+        description: Number of trains scheduled to operate
+
+      - name: cancelled_trains
+        description: Number of trains cancelled
+
+      - name: cancellation_comment
+        description: Comments explaining cancellation patterns
+
+      - name: delayed_departures
+        description: Number of trains departing late
+
+      - name: avg_delay_departure_minutes
+        description: Average delay in minutes for delayed departures only
+
+      - name: avg_delay_all_trains_departure_minutes
+        description: Average delay in minutes across all trains (including on-time)
+
+      - name: delay_departure_comment
+        description: Comments on departure delay patterns
+
+      - name: delayed_arrivals
+        description: Number of trains arriving late
+
+      - name: avg_delay_arrival_minutes
+        description: Average delay in minutes for delayed arrivals only
+
+      - name: avg_delay_all_trains_arrival_minutes
+        description: Average delay in minutes across all trains (including on-time)
+
+      - name: delay_arrival_comment
+        description: Comments on arrival delay patterns
+
+      - name: trains_delayed_over_15min
+        description: Number of trains delayed more than 15 minutes (relevant for routes competing with flights)
+
+      - name: avg_delay_trains_over_15min
+        description: Average delay for trains delayed over 15 minutes
+
+      - name: trains_delayed_over_30min
+        description: Number of trains delayed more than 30 minutes
+
+      - name: trains_delayed_over_60min
+        description: Number of trains delayed more than 60 minutes
+
+      - name: pct_delay_external_cause
+        description: Percentage of delays due to external causes (weather, obstacles, suspicious packages, strikes)
+
+      - name: pct_delay_infrastructure
+        description: Percentage of delays due to rail infrastructure (maintenance, construction work)
+
+      - name: pct_delay_traffic_management
+        description: Percentage of delays due to traffic management (network interactions, congestion)
+
+      - name: pct_delay_rolling_stock
+        description: Percentage of delays due to train equipment issues
+
+      - name: pct_delay_station_management
+        description: Percentage of delays due to station operations and equipment reuse
+
+      - name: pct_delay_passenger_handling
+        description: Percentage of delays due to passenger service (crowds, accessibility, connections)
+
+      - name: _loaded_at
+        description: Timestamp when record was loaded into staging
+
+  - name: stg_sncf__regularite_intercites
+    description: Monthly Intercites punctuality metrics by route (long-distance conventional trains)
+    columns:
+      - name: date
+        description: Month of measurement (first day of month)
+        data_tests:
+          - not_null
+
+      - name: departure_station
+        description: Origin station name (normalized to lowercase with spaces)
+        data_tests:
+          - not_null
+
+      - name: arrival_station
+        description: Destination station name (normalized to lowercase with spaces)
+        data_tests:
+          - not_null
+
+      - name: planned_trains
+        description: Number of trains scheduled to operate
+
+      - name: operated_trains
+        description: Number of trains that actually ran
+
+      - name: cancelled_trains
+        description: Number of trains cancelled (planned - operated)
+
+      - name: delayed_arrivals
+        description: Number of trains arriving late
+
+      - name: punctuality_rate
+        description: Percentage of trains arriving on time (0-100)
+
+      - name: on_time_trains_per_delayed_train
+        description: Ratio of on-time trains to each delayed train (inverse delay rate)
+
+      - name: _loaded_at
+        description: Timestamp when record was loaded into staging
+
+  - name: stg_sncf__regularite_ter
+    description: Monthly TER regional train punctuality metrics aggregated by region (not by specific route)
+    columns:
+      - name: date
+        description: Month of measurement (first day of month)
+        data_tests:
+          - not_null
+
+      - name: region
+        description: French administrative region (normalized to lowercase with spaces)
+        data_tests:
+          - not_null
+
+      - name: planned_trains
+        description: Number of trains scheduled to operate in this region
+
+      - name: operated_trains
+        description: Number of trains that actually ran
+
+      - name: cancelled_trains
+        description: Number of trains cancelled
+
+      - name: delayed_arrivals
+        description: Number of trains arriving late
+
+      - name: punctuality_rate
+        description: Percentage of trains arriving on time (0-100)
+
+      - name: on_time_trains_per_delayed_train
+        description: Ratio of on-time trains to each delayed train
+
+      - name: comments
+        description: Additional comments on regional performance
+
+      - name: _loaded_at
+        description: Timestamp when record was loaded into staging

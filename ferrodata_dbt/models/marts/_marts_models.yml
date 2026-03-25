@@ -1,0 +1,447 @@
+version: 2
+
+models:
+  - name: dim_stations
+    description: >
+      Master station dimension table with geographic coordinates, service types, and activity classification.
+      Stations are classified by tier based on total train volume (TGV + Intercités only, TER not included).
+    columns:
+      - name: station_id
+        description: UIC code - unique international identifier for railway stations
+        data_tests:
+          - unique
+          - not_null
+
+      - name: station_name
+        description: Station name normalized to lowercase with spaces (for joining)
+
+      - name: city
+        description: Municipality where the station is located
+
+      - name: department
+        description: French department (administrative division)
+
+      - name: longitude
+        description: Longitude in WGS84 decimal degrees (for mapping)
+
+      - name: latitude
+        description: Latitude in WGS84 decimal degrees (for mapping)
+
+      - name: has_freight_service
+        description: Boolean flag indicating if station handles freight trains
+
+      - name: has_passenger_service
+        description: Boolean flag indicating if station handles passenger trains
+
+      - name: line_code
+        description: Railway line identifier
+
+      - name: section_rank
+        description: Section rank on the railway line
+
+      - name: kilometer_point
+        description: Kilometric position marker on the line
+
+      - name: network_id
+        description: Internal network identifier
+
+      - name: total_days_active
+        description: Number of distinct days station appeared in punctuality data
+
+      - name: total_trains_handled
+        description: Total trains (departures + arrivals) from TGV and Intercités data
+
+      - name: station_tier
+        description: >
+          Station classification based on train volume:
+          Major Hub (≥50k trains), Regional Hub (≥10k), Medium (≥1k), Small (>0), Inactive/Freight Only (0)
+
+      - name: source_loaded_at
+        description: When raw station data was loaded
+
+      - name: _dbt_loaded_at
+        description: When this dimension table was built by dbt
+
+  - name: fct_train_punctuality
+    description: >
+      Unified fact table containing punctuality metrics for all train services (TGV, Intercités, TER).
+      Each record represents one route/region for one month. TER data is aggregated by region, not by route.
+    columns:
+      - name: service_type
+        description: Type of train service (TGV, Intercités, TER)
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['TGV', 'Intercités', 'TER']
+
+      - name: date
+        description: Month of measurement (first day of month)
+        data_tests:
+          - not_null
+
+      - name: year
+        description: Year extracted from date
+
+      - name: month
+        description: Month number (1-12)
+
+      - name: quarter
+        description: Quarter number (1-4)
+
+      - name: service
+        description: Service subtype (National/International for TGV, region name for TER)
+
+      - name: departure_station
+        description: Origin station (or region for TER)
+
+      - name: arrival_station
+        description: Destination station (or region for TER)
+
+      - name: route
+        description: Route identifier formatted as "Origin → Destination" (or region for TER)
+
+      - name: planned_trains
+        description: Number of trains scheduled to operate
+
+      - name: cancelled_trains
+        description: Number of trains cancelled
+
+      - name: operated_trains
+        description: Number of trains that actually ran (planned minus cancelled)
+
+      - name: delayed_arrivals
+        description: Number of trains arriving late
+
+      - name: avg_delay_arrival_minutes
+        description: Average delay in minutes for delayed trains (TGV only, null for others)
+
+      - name: trains_delayed_over_15min
+        description: Trains delayed more than 15 minutes (TGV only, for routes competing with flights)
+
+      - name: trains_delayed_over_30min
+        description: Trains delayed more than 30 minutes (TGV only)
+
+      - name: trains_delayed_over_60min
+        description: Trains delayed more than 60 minutes (TGV only)
+
+      - name: punctuality_rate
+        description: Percentage of trains arriving on time (0-100)
+
+      - name: cancellation_rate
+        description: Percentage of planned trains that were cancelled (0-100)
+
+      - name: delay_rate
+        description: Percentage of operated trains that arrived late (0-100)
+
+      - name: source_loaded_at
+        description: When source data was loaded to staging
+
+      - name: _dbt_loaded_at
+        description: When this fact table was built by dbt
+
+  - name: fct_tgv_delays_by_cause
+    description: >
+      TGV delay root cause analysis with attribution percentages. Each delay cause is unpivoted
+      into a separate row. Only TGV data includes cause breakdown; TER and Intercités do not.
+    columns:
+      - name: date
+        description: Month of measurement
+        data_tests:
+          - not_null
+
+      - name: year
+        description: Year extracted from date
+
+      - name: month
+        description: Month number (1-12)
+
+      - name: quarter
+        description: Quarter number (1-4)
+
+      - name: service
+        description: Service type (National or International)
+
+      - name: departure_station
+        description: Origin station
+
+      - name: arrival_station
+        description: Destination station
+
+      - name: route
+        description: Route formatted as "Origin → Destination"
+
+      - name: delay_cause_category
+        description: >
+          Delay cause category: External Causes, Infrastructure, Traffic Management,
+          Rolling Stock, Station Management, or Passenger Handling
+
+      - name: cause_description
+        description: Detailed explanation of what this cause category includes
+
+      - name: total_delayed_trains
+        description: Total number of trains delayed on this route this month
+
+      - name: total_trains_delayed_over_15min
+        description: Total trains delayed over 15 minutes
+
+      - name: cause_percentage
+        description: Percentage of delays attributed to this specific cause (0-100)
+
+      - name: estimated_trains_delayed_by_cause
+        description: Estimated absolute number of trains delayed by this cause (total_delayed * cause_percentage / 100)
+
+      - name: source_loaded_at
+        description: When source data was loaded
+
+      - name: _dbt_loaded_at
+        description: When this fact table was built by dbt
+
+  - name: agg_monthly_service_performance
+    description: >
+      Monthly performance trends aggregated by service type. Useful for time-series analysis
+      and comparing performance across TGV, Intercités, and TER services.
+    columns:
+      - name: month_start_date
+        description: First day of the month
+        data_tests:
+          - not_null
+
+      - name: year
+        description: Year
+
+      - name: month
+        description: Month number (1-12)
+
+      - name: month_name
+        description: Month name in English (January, February, etc.)
+
+      - name: service_type
+        description: Train service type (TGV, Intercités, TER)
+
+      - name: total_planned_trains
+        description: Total trains scheduled across all routes/regions
+
+      - name: total_cancelled_trains
+        description: Total trains cancelled
+
+      - name: total_operated_trains
+        description: Total trains that ran
+
+      - name: total_delayed_arrivals
+        description: Total trains arriving late
+
+      - name: total_trains_delayed_over_15min
+        description: Total trains delayed over 15 minutes (TGV only)
+
+      - name: total_trains_delayed_over_30min
+        description: Total trains delayed over 30 minutes (TGV only)
+
+      - name: total_trains_delayed_over_60min
+        description: Total trains delayed over 60 minutes (TGV only)
+
+      - name: unique_routes_served
+        description: Number of distinct routes or regions served this month
+
+      - name: route_month_records
+        description: Number of route-month records aggregated
+
+      - name: cancellation_rate
+        description: Percentage of planned trains cancelled (0-100)
+
+      - name: delay_rate
+        description: Percentage of operated trains delayed (0-100)
+
+      - name: punctuality_rate
+        description: Percentage of operated trains arriving on time (0-100)
+
+      - name: severe_delay_rate_15min
+        description: Percentage of trains delayed over 15 min (TGV only)
+
+      - name: severe_delay_rate_30min
+        description: Percentage of trains delayed over 30 min (TGV only)
+
+      - name: _dbt_loaded_at
+        description: When this aggregate was built by dbt
+
+  - name: agg_station_performance
+    description: >
+      Station-level performance aggregations combining departure and arrival metrics by service type.
+      Useful for identifying problematic stations and high-volume hubs.
+    columns:
+      - name: station_name
+        description: Station name
+        data_tests:
+          - not_null
+
+      - name: service_type
+        description: Train service type (TGV, Intercités, TER)
+
+      - name: total_station_records
+        description: Total number of monthly records (departures + arrivals)
+
+      - name: total_trains_planned
+        description: Total trains planned (departures + arrivals)
+
+      - name: total_trains_operated
+        description: Total trains operated
+
+      - name: total_trains_cancelled
+        description: Total trains cancelled
+
+      - name: total_departure_records
+        description: Number of monthly departure records
+
+      - name: total_departures_planned
+        description: Trains scheduled to depart from this station
+
+      - name: total_departures_operated
+        description: Trains that departed
+
+      - name: total_departures_cancelled
+        description: Departures cancelled
+
+      - name: total_delays_from_station
+        description: Number of trains delayed after departing from here
+
+      - name: avg_departure_punctuality_rate
+        description: Average punctuality rate for departures (0-100)
+
+      - name: avg_departure_cancellation_rate
+        description: Average cancellation rate for departures (0-100)
+
+      - name: total_arrival_records
+        description: Number of monthly arrival records
+
+      - name: total_arrivals_planned
+        description: Trains scheduled to arrive at this station
+
+      - name: total_arrivals_operated
+        description: Trains that arrived
+
+      - name: total_arrivals_cancelled
+        description: Arrivals cancelled
+
+      - name: total_delays_at_station
+        description: Number of trains arriving late at this station
+
+      - name: avg_arrival_punctuality_rate
+        description: Average punctuality rate for arrivals (0-100)
+
+      - name: avg_arrival_cancellation_rate
+        description: Average cancellation rate for arrivals (0-100)
+
+      - name: overall_punctuality_rate
+        description: Combined punctuality across departures and arrivals (0-100)
+
+      - name: overall_cancellation_rate
+        description: Combined cancellation rate (0-100)
+
+      - name: volume_category
+        description: >
+          Station volume classification: Very High (≥100k), High (≥50k), Medium (≥10k),
+          Low (≥1k), Minimal (<1k)
+
+      - name: _dbt_loaded_at
+        description: When this aggregate was built by dbt
+
+  - name: agg_route_performance
+    description: >
+      Route-level performance summary for TGV and Intercités services. Aggregates all historical
+      data for each route including reliability metrics and performance ratings.
+    columns:
+      - name: route
+        description: Route formatted as "Origin → Destination"
+        data_tests:
+          - not_null
+
+      - name: service_type
+        description: Service type (TGV or Intercités)
+
+      - name: service
+        description: Service subtype (National/International)
+
+      - name: departure_station
+        description: Origin station
+
+      - name: arrival_station
+        description: Destination station
+
+      - name: first_observation_date
+        description: Earliest month with data for this route
+
+      - name: last_observation_date
+        description: Most recent month with data
+
+      - name: days_observed
+        description: Number of distinct months observed
+
+      - name: total_days_in_window
+        description: Days between first and last observation
+
+      - name: total_trains_planned
+        description: Total trains scheduled on this route (all time)
+
+      - name: total_trains_operated
+        description: Total trains that ran
+
+      - name: total_trains_cancelled
+        description: Total trains cancelled
+
+      - name: total_trains_delayed
+        description: Total trains arriving late
+
+      - name: total_trains_delayed_over_15min
+        description: Trains delayed over 15 min (TGV only)
+
+      - name: total_trains_delayed_over_30min
+        description: Trains delayed over 30 min (TGV only)
+
+      - name: total_trains_delayed_over_60min
+        description: Trains delayed over 60 min (TGV only)
+
+      - name: avg_punctuality_rate
+        description: Average monthly punctuality rate (0-100)
+
+      - name: avg_cancellation_rate
+        description: Average monthly cancellation rate (0-100)
+
+      - name: avg_delay_minutes
+        description: Average delay in minutes across all delayed trains
+
+      - name: punctuality_rate_std_dev
+        description: Standard deviation of punctuality rate (measures consistency)
+
+      - name: worst_month_punctuality
+        description: Lowest punctuality rate in any single month
+
+      - name: best_month_punctuality
+        description: Highest punctuality rate in any single month
+
+      - name: overall_cancellation_rate
+        description: Overall cancellation rate across all time (0-100)
+
+      - name: overall_delay_rate
+        description: Overall delay rate across all time (0-100)
+
+      - name: overall_punctuality_rate
+        description: Overall punctuality rate across all time (0-100)
+
+      - name: severe_delay_rate_15min
+        description: Percentage of trains delayed over 15 min (TGV only)
+
+      - name: severe_delay_rate_30min
+        description: Percentage of trains delayed over 30 min (TGV only)
+
+      - name: route_importance
+        description: >
+          Classification by volume: Major Route (≥50k), Important (≥10k),
+          Regular (≥1k), Minor (<1k)
+
+      - name: performance_rating
+        description: >
+          Performance rating based on punctuality: Excellent (≥95%), Good (≥90%),
+          Fair (≥80%), Poor (≥70%), Critical (<70%)
+
+      - name: _dbt_loaded_at
+        description: When this aggregate was built by dbt
