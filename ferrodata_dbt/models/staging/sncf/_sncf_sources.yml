@@ -2,54 +2,186 @@ version: 2
 
 sources:
   - name: sncf
-    description: "Raw SNCF data from ingestion pipeline"
-
+    description: Raw SNCF data from ingestion pipeline
     schema: raw_sncf
 
     tables:
       - name: regularite_tgv
-        description: "Régularité mensuelle TGV par liaisons (AQST) depuis janvier 2018."
+        description: Monthly TGV punctuality by route (AQST quality indicators) since January 2018
         columns:
           - name: date
-            description: "Date de la mesure"
+            description: Measurement date (first day of month)
+
           - name: service
-            description: "National / International"
+            description: Service type (National or International)
+
+          - name: gare_depart
+            description: Departure station name (original format with hyphens and title case)
+
+          - name: gare_arrivee
+            description: Arrival station name (original format with hyphens and title case)
+
           - name: duree_moyenne
-            description: "Durée moyenne du trajet"
+            description: Average trip duration in minutes
+
+          - name: nb_train_prevu
+            description: Number of trains scheduled
+
+          - name: nb_annulation
+            description: Number of trains cancelled
+
+          - name: commentaire_annulation
+            description: Comments on cancellations
+
+          - name: nb_train_depart_retard
+            description: Number of trains departing late
+
+          - name: retard_moyen_depart
+            description: Average departure delay in minutes (for delayed trains only)
+
+          - name: retard_moyen_tous_trains_depart
+            description: Average departure delay in minutes (all trains including on-time)
+
+          - name: commentaire_retards_depart
+            description: Comments on departure delays
+
+          - name: nb_train_retard_arrivee
+            description: Number of trains arriving late
+
+          - name: retard_moyen_arrivee
+            description: Average arrival delay in minutes (for delayed trains only)
+
+          - name: retard_moyen_tous_trains_arrivee
+            description: Average arrival delay in minutes (all trains including on-time)
+
+          - name: commentaires_retard_arrivee
+            description: Comments on arrival delays
+
           - name: nb_train_retard_sup_15
-            description: Nombre de trains en retard supérieur à 15min (si liaison concurrencée par vol)
+            description: Number of trains delayed over 15 minutes (relevant for routes competing with flights)
+
+          - name: retard_moyen_trains_retard_sup15
+            description: Average delay for trains delayed over 15 minutes
+
+          - name: nb_train_retard_sup_30
+            description: Number of trains delayed over 30 minutes
+
+          - name: nb_train_retard_sup_60
+            description: Number of trains delayed over 60 minutes
+
           - name: prct_cause_externe
-            description: Pourcentage de trains en retard pour causes externes (météo, obstacles, colis suspects, malveillance, mouvements sociaux, etc.)
+            description: Percentage of delays due to external causes (weather, obstacles, suspicious packages, vandalism, strikes, etc.)
+
           - name: prct_cause_infra
-            description: Pourcentage de trains en retard pour cause infrastructure ferroviaire (maintenance, travaux)
+            description: Percentage of delays due to rail infrastructure (maintenance, construction work)
+
           - name: prct_cause_gestion_trafic
-            description: Pourcentage de trains en retard pour cause gestion du trafic (circulation sur ligne ferroviaire, interactions réseaux)
+            description: Percentage of delays due to traffic management (railway line circulation, network interactions)
+
           - name: prct_cause_materiel_roulant
-            description: Pourcentage de trains en retard pour cause matériel roulant
+            description: Percentage of delays due to rolling stock (train equipment issues)
+
           - name: prct_cause_gestion_gare
-            description: Pourcentage de trains en retard pour cause de gestion en gare et réutilisation de matériel
+            description: Percentage of delays due to station management and equipment reuse
+
           - name: prct_cause_prise_en_charge_voyageurs
-            description: Pourcentage de trains en retard pour cause de prise en compte voyageurs (affluence, gestions PSH, correspondances)
+            description: Percentage of delays due to passenger handling (crowds, accessibility services, connections)
 
       - name: regularite_ter
-        description: "Régularité mensuelle TER depuis janvier 2013."
+        description: Monthly TER regional train punctuality aggregated by region since January 2013
+        columns:
+          - name: date
+            description: Measurement date (first day of month)
+
+          - name: region
+            description: French administrative region name
+
+          - name: nombre_de_trains_programmes
+            description: Number of trains scheduled
+
+          - name: nombre_de_trains_ayant_circule
+            description: Number of trains that actually ran
+
+          - name: nombre_de_trains_annules
+            description: Number of trains cancelled
+
+          - name: nombre_de_trains_en_retard_a_l_arrivee
+            description: Number of trains arriving late
+
+          - name: taux_de_regularite
+            description: Punctuality rate percentage (0-100)
+
+          - name: nombre_de_trains_a_l_heure_pour_un_train_en_retard_a_l_arrivee
+            description: Ratio of on-time trains to each delayed train
+
+          - name: commentaires
+            description: Additional comments on regional performance
 
       - name: regularite_intercites
-        description: "Régularité mensuelle des trains Intercités depuis janvier 2014."
+        description: Monthly Intercites long-distance train punctuality by route since January 2014
+        columns:
+          - name: date
+            description: Measurement date (first day of month)
+
+          - name: depart
+            description: Departure station name (original format with hyphens and title case)
+
+          - name: arrivee
+            description: Arrival station name (original format with hyphens and title case)
+
+          - name: nombre_de_trains_programmes
+            description: Number of trains scheduled
+
+          - name: nombre_de_trains_ayant_circule
+            description: Number of trains that actually ran
+
+          - name: nombre_de_trains_annules
+            description: Number of trains cancelled
+
+          - name: nombre_de_trains_en_retard_a_l_arrivee
+            description: Number of trains arriving late
+
+          - name: taux_de_regularite
+            description: Punctuality rate percentage (0-100)
+
+          - name: nombre_de_trains_a_l_heure_pour_un_train_en_retard_a_l_arrivee
+            description: Ratio of on-time trains to each delayed train
 
       - name: gares
-        description: "Liste des gares du Réseau Ferré National."
+        description: Master list of stations on the French National Railway Network
         columns:
           - name: code_uic
-            description: "Identifiant unique de la gare (UIC)."
+            description: Unique International Code (UIC) identifier for the station
+
           - name: libelle
-            description: "Nom de la gare."
+            description: Station name (original format with hyphens and title case)
+
+          - name: fret
+            description: Freight service indicator (O=Yes, N=No)
+
+          - name: voyageurs
+            description: Passenger service indicator (O=Yes, N=No)
+
           - name: code_ligne
-            description: "Code de la ligne."
+            description: Railway line code
+
           - name: rg_troncon
-            description: "rang du tronçon."
+            description: Section rank on the railway line
+
           - name: pk
-            description: "point kilométrique de la gare."
+            description: Kilometric point marking station position on the line
+
+          - name: commune
+            description: Municipality name where station is located
+
+          - name: departemen
+            description: French department (administrative division)
+
           - name: idreseau
-            description: "Identifiant de la gare dans la base réseau."
-          
+            description: Internal network identifier for the station
+
+          - name: x_wgs84
+            description: Longitude coordinate in WGS84 decimal degrees
+
+          - name: y_wgs84
+            description: Latitude coordinate in WGS84 decimal degrees
