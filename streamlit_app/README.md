@@ -1,226 +1,114 @@
-# 🚄 SNCF Train Punctuality Analytics - Streamlit App
+# Ferrodata - SNCF Train Punctuality Analytics
 
-Interactive dashboard for analyzing French train punctuality data across TGV, TER, and Intercités services.
+Interactive Streamlit dashboard for analyzing French railway performance across TGV, TER, and Intercités services.
 
-## Features
+## 🎯 Features
 
-### 📊 Main Dashboard (`app.py`)
-- Executive summary with KPIs
-- Punctuality and cancellation trends
-- Service type comparison
-- Best/worst performing routes
+- 🏠 **Executive Dashboard** - KPIs, trends, and performance overview
+- 🗺️ **Interactive Station Map** - PyDeck visualization of all stations
+- 🚄 **Route Explorer** - Compare routes and analyze historical performance
+- 🔍 **Delay Analysis** - TGV delay cause breakdown and insights
+- 📊 **Real-time Analytics** - Powered by dbt + DuckDB pipeline
 
-### 🗺️ Station Map (`pages/1_🗺️_Station_Map.py`)
-- Interactive map of all French train stations
-- Color-coded by station tier
-- Sized by train volume
-- Filterable by tier and traffic
-- Searchable station details
-
-### 🚄 Route Explorer (`pages/2_🚄_Route_Explorer.py`)
-- Compare up to 5 routes side-by-side
-- Historical performance trends
-- Seasonal pattern analysis
-- Detailed route metrics
-
-### 🔍 Delay Analysis (`pages/3_🔍_Delay_Analysis.py`)
-- Root cause breakdown for TGV delays
-- 6 delay categories analyzed
-- Time series trends
-- Route-specific filtering
-
-## Quick Start
-
-### Local Development
+## 🚀 Quick Start
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Navigate to app directory
+cd streamlit_app
 
-# Run the app
-streamlit run app.py
+# Install dependencies with uv
+uv sync
 
-# Or use the provided script
-./run.sh
+# Run the application
+uv run streamlit run main.py
+
+# Or use streamlit directly
+streamlit run main.py
 ```
 
-The app will be available at http://localhost:8501
-
-### Docker Deployment
-
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
-```
-
-### Docker (manual)
-
-```bash
-# Build image
-docker build -t sncf-analytics .
-
-# Run container
-docker run -p 8501:8501 \
-  -v $(pwd)/../ferrodata.duckdb:/app/ferrodata.duckdb:ro \
-  sncf-analytics
-```
-
-## Configuration
-
-### Database Connection
-
-The app expects to find `ferrodata.duckdb` in the parent directory (`../ferrodata.duckdb`).
-
-To change the database path, edit `utils/db.py`:
-
-```python
-db_path = Path(__file__).parent.parent.parent / "ferrodata.duckdb"
-```
-
-### Streamlit Config
-
-Customize appearance and behavior in `.streamlit/config.toml`:
-- Theme colors
-- Server port
-- Upload limits
-- Browser settings
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 streamlit_app/
-├── app.py                    # Main dashboard
-├── pages/
-│   ├── 1_🗺️_Station_Map.py
-│   ├── 2_🚄_Route_Explorer.py
-│   └── 3_🔍_Delay_Analysis.py
-├── utils/
-│   ├── __init__.py
-│   ├── db.py                 # Database utilities
-│   └── charts.py             # Chart components
+├── main.py                          # Application entry point
+├── pyproject.toml                   # Dependencies and metadata
 ├── .streamlit/
-│   └── config.toml           # Streamlit configuration
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
-└── README.md
+│   └── config.toml                 # Streamlit configuration
+├── src/
+│   └── ferrodata_delays_analysis/
+│       ├── pages/                  # Application pages
+│       │   ├── 1_home.py          # Executive dashboard
+│       │   ├── 4_station_map.py   # Interactive map
+│       │   ├── 5_route_explorer.py # Route analysis
+│       │   └── 6_delay_analysis.py # Delay causes
+│       ├── components/             # Reusable components
+│       │   ├── footer.py
+│       │   └── charts.py
+│       └── utils/                  # Utility functions
+│           ├── database.py         # DuckDB connection
+│           └── helpers.py
+└── static/                         # Static assets
 ```
 
-## Data Sources
+## 🎨 Technology Stack
 
-This app visualizes data from the **dbt analytics layer**:
+- **Streamlit** - Interactive web framework
+- **DuckDB** - Embedded analytics database
+- **dbt** - Data transformation pipeline
+- **PyDeck** - WebGL-powered map visualizations
+- **Plotly** - Interactive charts and graphs
+- **uv** - Fast Python package manager
 
-- `dim_stations` - Station master data
-- `fct_train_punctuality` - Unified punctuality facts
-- `fct_tgv_delays_by_cause` - TGV delay root causes
-- `agg_monthly_service_performance` - Monthly aggregations
-- `agg_station_performance` - Station-level metrics
-- `agg_route_performance` - Route-level metrics
+## 📊 Data Pipeline
 
-All data sourced from [SNCF Open Data](https://ressources.data.sncf.com/).
+The app connects to analytics tables built by dbt:
 
-## Performance
+- `dim_stations` - Station master dimension
+- `fct_train_punctuality` - Unified punctuality metrics
+- `fct_tgv_delays_by_cause` - Delay attribution
+- `agg_monthly_service_performance` - Monthly trends
+- `agg_route_performance` - Route-level analytics
+- `agg_station_performance` - Station metrics
 
-### Caching Strategy
+## 🔧 Configuration
 
-The app uses Streamlit's caching decorators for optimal performance:
+### Theme
 
-- `@st.cache_resource` - Database connections (persistent)
-- `@st.cache_data(ttl=300)` - Query results (5-minute TTL)
-- `@st.cache_data(ttl=3600)` - Reference data (1-hour TTL)
+Default theme is configured in `.streamlit/config.toml`. Modify as needed:
 
-### Query Optimization
-
-- Read-only database connection
-- Pre-aggregated marts reduce query complexity
-- Indexed columns for fast filtering
-
-## Deployment
-
-### Streamlit Cloud
-
-1. Push code to GitHub
-2. Connect repository to [Streamlit Cloud](https://streamlit.io/cloud)
-3. Upload `ferrodata.duckdb` as a data source
-4. Deploy!
-
-### Self-Hosted
-
-Use Docker Compose for production deployments:
-
-```bash
-# Production deployment
-docker-compose -f docker-compose.prod.yml up -d
+```toml
+[theme]
+primaryColor = "#FF4B4B"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#262730"
 ```
 
-Consider:
-- Reverse proxy (nginx) for SSL/TLS
-- Load balancer for high traffic
-- Database on separate volume/service
-- Automated dbt pipeline to refresh data
+### Adding Pages
 
-## Troubleshooting
+Create new pages in `src/ferrodata_delays_analysis/pages/` following the naming pattern.
+Pages are automatically registered in `main.py`.
 
-### Database Not Found
+## 🐍 Requirements
 
-```
-❌ Database not found at: /path/to/ferrodata.duckdb
-```
+- Python 3.12+
+- Streamlit 1.28.0+
+- DuckDB 1.0.0+
+- PyDeck 0.8.1+
 
-**Solution:** Ensure `ferrodata.duckdb` exists and the path in `utils/db.py` is correct.
+## 👨‍💻 Credits
 
-### Query Errors
+**Author:** Slimane Lakehal - lakehalslimane@gmail.com
 
-```
-❌ Query failed: Binder Error: Referenced column not found
-```
+**Template:** Based on Gaël Penessot's modern Streamlit template
+🔗 [GitHub](https://github.com/gpenessot)
 
-**Solution:** Run `dbt run` to ensure all mart models are up to date.
+**Data Source:** SNCF Open Data
+🔗 [https://ressources.data.sncf.com/](https://ressources.data.sncf.com/)
 
-### Slow Performance
+## 📝 License
 
-- Check cache TTL settings in `utils/db.py`
-- Verify database is on fast storage (SSD)
-- Consider pre-aggregating more data in dbt
-
-## Development
-
-### Adding New Pages
-
-1. Create new file: `pages/4_🎯_New_Page.py`
-2. Follow naming convention: `{number}_{emoji}_{Name}.py`
-3. Import utilities: `from utils.db import query_data`
-4. Use consistent layout and styling
-
-### Custom Queries
-
-Add reusable queries to `utils/db.py`:
-
-```python
-@st.cache_data(ttl=3600)
-def get_custom_metric():
-    conn = get_db()
-    query = "SELECT ..."
-    return query_data(conn, query)
-```
-
-## License
-
-This project uses SNCF Open Data which is available under Open License.
-
-## Support
-
-For issues or questions:
-- Check dbt docs: `dbt docs serve`
-- Review data lineage in dbt documentation
-- Verify source data freshness: `dbt source freshness`
+MIT
 
 ---
 
-Built with ❤️ using Streamlit + dbt + DuckDB
+⭐ Built with Streamlit + dbt + DuckDB

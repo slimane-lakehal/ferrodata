@@ -16,6 +16,7 @@ dependencies = [
 [tool.uv.sources]
 ferrodata-ingestion = { workspace = true }
 ferrodata-app = { workspace = true }
+ferrodata_delays_analysis = { workspace = true }
 
 # Workspace configuration
 [tool.uv.workspace]
@@ -24,3 +25,22 @@ members = [
     "streamlit_app"
 ]
 
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

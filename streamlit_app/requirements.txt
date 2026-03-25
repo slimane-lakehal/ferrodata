@@ -1,0 +1,13 @@
+# 📦 Requirements.txt pour déploiement
+#
+# Ce fichier est GÉNÉRÉ automatiquement depuis pyproject.toml
+# Ne modifiez pas ce fichier directement !
+#
+# Pour mettre à jour les dépendances :
+# 1. Modifiez pyproject.toml ou utilisez 'just add PACKAGE'
+# 2. Générez ce fichier avec 'just requirements'
+#
+# Ce fichier est nécessaire pour déployer sur Streamlit Cloud
+
+# Pour générer les dépendances, exécutez :
+# just requirements

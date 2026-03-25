@@ -14,11 +14,12 @@ def get_db():
     Returns:
         duckdb.DuckDBPyConnection: Database connection
     """
-    # Path to DuckDB file (relative to streamlit_app directory)
-    db_path = Path(__file__).parent.parent.parent / "ferrodata.duckdb"
+    # Path to DuckDB file (relative to project root)
+    db_path = Path(__file__).parent.parent.parent.parent.parent / "ferrodata.duckdb"
 
     if not db_path.exists():
         st.error(f"❌ Database not found at: {db_path}")
+        st.info(f"📍 Looking for database at: {db_path.absolute()}")
         st.stop()
 
     try:
@@ -46,7 +47,8 @@ def query_data_cached(_conn, query: str) -> pd.DataFrame:
         return result
     except Exception as e:
         st.error(f"❌ Query failed: {e}")
-        st.code(query, language="sql")
+        with st.expander("🔍 View failed query"):
+            st.code(query, language="sql")
         return pd.DataFrame()
 
 
@@ -146,7 +148,7 @@ def get_all_routes() -> list:
     FROM analytics_analytics.agg_route_performance
     ORDER BY route
     """
-    result = query_data( query)
+    result = query_data(query)
 
     if not result.empty:
         return result['route'].tolist()

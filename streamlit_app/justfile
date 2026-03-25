@@ -1,0 +1,103 @@
+# ferrodata - Justfile
+# Compatible Windows, Linux, macOS
+
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+
+# Variables
+PYTHON_VERSION := "3.12"
+PROJECT_NAME := "ferrodata_delays_analysis"
+
+# Setup complet du projet
+setup:
+    @echo "Configuration du projet..."
+    uv venv --python 3.12
+    uv sync
+    @echo "Setup termine!"
+
+# Lancement de l'application
+run:
+    uv run streamlit run main.py
+
+# Synchronisation des dependances
+sync:
+    uv sync
+
+# Ajout d'une dependance
+add PACKAGE:
+    uv add {{ PACKAGE }}
+
+# Ajout d'une dependance de dev
+add-dev PACKAGE:
+    uv add --dev {{ PACKAGE }}
+
+# Formatage du code avec ruff
+format:
+    @echo "Formatage du code avec ruff..."
+    uv run ruff format .
+    @echo "Done!"
+
+# Verification de la qualite du code avec ruff
+lint:
+    @echo "Verification du code avec ruff..."
+    uv run ruff check .
+    @echo "All checks passed!"
+
+# Formatage ET verification (combo pratique)
+check: format lint
+
+# Generation du requirements.txt
+requirements:
+    uv pip compile pyproject.toml -o requirements.txt
+
+# Creation de l'environnement virtuel
+venv:
+    uv venv --python "3.12
+
+# Nettoyage (compatible toutes plateformes via Python)
+clean:
+    python -c "import shutil, pathlib; [shutil.rmtree(p, ignore_errors=True) for p in [pathlib.Path('.venv')] if p.exists()]; [p.unlink() for p in pathlib.Path('.').rglob('*.pyc')]; [shutil.rmtree(p, ignore_errors=True) for p in pathlib.Path('.').rglob('__pycache__')]"
+
+# Reinstallation complete
+reset: clean setup
+
+# Mode developpement
+dev:
+    uv run streamlit run main.py --server.runOnSave=true --server.developmentMode=true
+
+# Tests
+test:
+    uv run pytest tests/ -v
+
+# Informations
+info:
+    @echo "ferrodata"
+    @echo "  Python: 3.12"
+    @echo "  Auteur: Slimane Lakehal"
+
+# Aide
+help:
+    @echo "ferrodata - Commandes disponibles"
+    @echo ""
+    @echo "Principales:"
+    @echo "  just setup  - Setup complet"
+    @echo "  just run    - Lancer l'application"
+    @echo "  just dev    - Mode developpement"
+    @echo ""
+    @echo "Qualite du code:"
+    @echo "  just format - Formater le code"
+    @echo "  just lint   - Verifier la qualite"
+    @echo "  just check  - Format + Lint"
+    @echo ""
+    @echo "Dependances:"
+    @echo "  just sync              - Synchroniser"
+    @echo "  just add PACKAGE       - Ajouter une lib"
+    @echo "  just add-dev PACKAGE   - Ajouter une lib de dev"
+    @echo "  just requirements      - Generer requirements.txt"
+    @echo ""
+    @echo "Maintenance:"
+    @echo "  just clean - Nettoyer"
+    @echo "  just reset - Reinstaller"
+    @echo "  just test  - Tests"
+
+# Commande par defaut
+default: help
