@@ -22,3 +22,16 @@ ferrodata/logs/
 ferrodata/target/
 ferrodata/.env
 logs/
+# Streamlit secrets
+.streamlit/secrets.toml
+streamlit_app/.streamlit/secrets.toml
+
+# dbt additional
+ferrodata_dbt/dbt_packages/
+ferrodata_dbt/target/
+ferrodata_dbt/logs/
+ferrodata_dbt/.env
+
+# Environment files
+.env.local
+*.env

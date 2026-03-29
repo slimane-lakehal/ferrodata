@@ -1,0 +1,71 @@
+name: Streamlit App CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'streamlit_app/**'
+      - '.github/workflows/streamlit-deploy.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'streamlit_app/**'
+
+jobs:
+  test:
+    name: Test Streamlit App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: |
+          cd streamlit_app
+          uv sync
+
+      - name: Lint with ruff
+        run: |
+          cd streamlit_app
+          uv run ruff check src/
+
+      - name: Check imports
+        run: |
+          cd streamlit_app
+          uv run python -c "import sys; sys.path.insert(0, 'src'); from ferrodata_delays_analysis.utils.database import query_data"
+
+      - name: Validate Streamlit app structure
+        run: |
+          cd streamlit_app
+          test -f main.py || (echo "main.py not found" && exit 1)
+          test -f requirements.txt || (echo "requirements.txt not found" && exit 1)
+          test -d .streamlit || (echo ".streamlit directory not found" && exit 1)
+
+  deploy-notification:
+    name: Deployment Status
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deployment Ready
+        run: |
+          echo "✅ All tests passed!"
+          echo "🚀 Streamlit Cloud will auto-deploy from main branch"
+          echo "📊 App URL: https://share.streamlit.io/slimane-lakehal/ferrodata/main/streamlit_app/main.py"
+          echo ""
+          echo "Note: Streamlit Cloud automatically deploys when you push to main."
+          echo "Visit: https://share.streamlit.io/ to manage your deployment."

@@ -1,0 +1,93 @@
+name: Data Pipeline
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # Monthly: 1st of each month at 06:00 UTC
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  ingest:
+    name: Ingest SNCF Data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: uv sync --package ferrodata-ingestion
+
+      - name: Write GCP credentials
+        run: echo '${{ secrets.GCP_SERVICE_ACCOUNT }}' > /tmp/gcp_credentials.json
+
+      - name: Run ingestion pipeline
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          BQ_DATASET: raw_sncf
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp_credentials.json
+        run: uv run ferrodata-ingest --env prod --bq-only
+
+  transform:
+    name: dbt Transform & Test
+    runs-on: ubuntu-latest
+    needs: ingest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Install dbt dependencies
+        run: uv sync
+
+      - name: Write GCP credentials
+        run: echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp_credentials.json
+
+      - name: Create dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          ferrodata_dbt:
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                project: ${{ secrets.GCP_PROJECT_ID }}
+                dataset: sncf
+                threads: 16
+                location: EU
+                keyfile: /tmp/gcp_credentials.json
+                job_execution_timeout_seconds: 300
+            target: prod
+          EOF
+
+      - name: Install dbt packages
+        working-directory: ferrodata_dbt
+        run: uv run dbt deps
+
+      - name: Run dbt models
+        working-directory: ferrodata_dbt
+        run: uv run dbt run --target prod
+
+      - name: Run dbt tests
+        working-directory: ferrodata_dbt
+        run: uv run dbt test --target prod
