@@ -2,13 +2,14 @@
 Composant Sidebar - Navigation et informations latérales
 """
 
-import streamlit as st
 from datetime import datetime
+
+import streamlit as st
 
 
 def render_sidebar():
     """Affiche la sidebar avec navigation et informations."""
-    
+
     with st.sidebar:
         # Logo/Header de l'application
         st.markdown("""
@@ -17,9 +18,9 @@ def render_sidebar():
             <h3 style='margin: 0.5rem 0 0 0;'>ferrodata</h3>
         </div>
         """, unsafe_allow_html=True)
-        
+
         st.markdown("---")
-        
+
         # Navigation principale
         st.markdown("### 🧭 Navigation")
         st.markdown("""
@@ -28,69 +29,69 @@ def render_sidebar():
         - 📊 **Dashboard** : Visualisations et analytics  
         - ⚙️ **Settings** : Configuration de l'app
         """)
-        
+
         st.markdown("---")
-        
+
         # Informations sur la session
         st.markdown("### 📊 Session info")
-        
+
         # Informations utilisateur
         if 'user_name' in st.session_state:
             st.markdown(f"👤 **Utilisateur :** {st.session_state.user_name}")
         else:
             st.markdown("👤 **Utilisateur :** Slimane Lakehal")
-        
+
         # Heure de connexion simulée
         if 'session_start' not in st.session_state:
             st.session_state.session_start = datetime.now()
-        
+
         session_duration = datetime.now() - st.session_state.session_start
         minutes = int(session_duration.total_seconds() // 60)
         seconds = int(session_duration.total_seconds() % 60)
-        
+
         st.markdown(f"⏱️ **Session :** {minutes}m {seconds}s")
         st.markdown(f"📅 **Date :** {datetime.now().strftime('%d/%m/%Y')}")
         st.markdown(f"🕐 **Heure :** {datetime.now().strftime('%H:%M:%S')}")
-        
+
         st.markdown("---")
-        
+
         # Statistiques rapides
         st.markdown("### 📈 Aperçu rapide")
-        
+
         # Métriques simulées
         st.metric(
             label="📊 Pages vues",
             value="1,234",
             delta="12%"
         )
-        
+
         st.metric(
             label="👥 Utilisateurs actifs",
             value="56",
             delta="-3%"
         )
-        
+
         st.metric(
             label="⚡ Performance",
             value="98%",
             delta="2%"
         )
-        
+
         st.markdown("---")
-        
+
         # Actions rapides
         st.markdown("### ⚡ Actions rapides")
-        
+
         col1, col2 = st.columns(2)
-        
+
         with col1:
             if st.button("🔄", help="Actualiser les données"):
                 st.rerun()
-        
+
         with col2:
             if st.button("📥", help="Exporter les données"):
                 st.success("Export démarré !")
-        
+
         # Bouton de déconnexion simulé
         if st.button("🚪 Déconnexion", type="secondary", use_container_width=True):
             # Réinitialiser la session
@@ -98,9 +99,9 @@ def render_sidebar():
                 del st.session_state[key]
             st.success("Déconnexion réussie !")
             st.rerun()
-        
+
         st.markdown("---")
-        
+
         # Section d'aide
         with st.expander("❓ Aide & Support"):
             st.markdown("""
@@ -123,14 +124,14 @@ def render_sidebar():
             
             👉 [En savoir plus](https://votre-lien-formation.com)
             """)
-        
+
         # Footer de la sidebar
         st.markdown("---")
         st.markdown(
             "<div style='text-align: center; font-size: 0.8em; color: gray;'>"
-            f"v1.0.0 | Développé avec ❤️<br>"
-            f"par Slimane Lakehal"
-            "</div>", 
+            "v1.0.0 | Développé avec ❤️<br>"
+            "par Slimane Lakehal"
+            "</div>",
             unsafe_allow_html=True
         )
 
@@ -140,13 +141,13 @@ def render_mini_sidebar():
     with st.sidebar:
         st.markdown("### 🚀 ferrodata")
         st.markdown("---")
-        
+
         # Retour à l'accueil
         if st.button("🏠 Retour à l'accueil"):
             st.switch_page("main.py")
-        
+
         # Informations essentielles
-        st.markdown(f"👤 Slimane Lakehal")
+        st.markdown("👤 Slimane Lakehal")
         st.markdown(f"📅 {datetime.now().strftime('%d/%m/%Y')}")
 
 

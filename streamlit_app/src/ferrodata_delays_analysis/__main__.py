@@ -3,6 +3,7 @@ Point d'entrée principal de l'application ferrodata.
 """
 
 import streamlit as st
+
 from .components.sidebar import render_sidebar
 
 
@@ -27,20 +28,20 @@ def configure_page():
 def main():
     """Point d'entrée principal de l'application."""
     configure_page()
-    
+
     # Titre principal
     st.title("🚀 ferrodata")
     st.markdown("*Interactive dashboard for analysing the performance of the french railway plateform.*")
-    
+
     # Sidebar
     render_sidebar()
-    
+
     # Contenu principal
     col1, col2, col3 = st.columns([1, 2, 1])
-    
+
     with col2:
         st.markdown("---")
-        
+
         # Message de bienvenue
         st.markdown("""
         ## 👋 Bienvenue !
@@ -58,7 +59,7 @@ def main():
         ### 🧭 Navigation
         Utilisez la **sidebar** à gauche pour naviguer entre les différentes pages.
         """)
-        
+
         # Call-to-action subtil pour la formation
         with st.expander("🎓 Envie d'aller plus loin ?"):
             st.markdown("""
@@ -74,14 +75,14 @@ def main():
             
             👉 [**Découvrir la formation**](https://votre-lien-formation.com)
             """)
-    
+
     # Footer
     st.markdown("---")
     st.markdown(
-        f"<div style='text-align: center; color: gray;'>"
-        f"Développé avec ❤️ par Slimane Lakehal | "
-        f"<a href='mailto:lakehalslimane@gmail.com'>Contact</a>"
-        f"</div>", 
+        "<div style='text-align: center; color: gray;'>"
+        "Développé avec ❤️ par Slimane Lakehal | "
+        "<a href='mailto:lakehalslimane@gmail.com'>Contact</a>"
+        "</div>",
         unsafe_allow_html=True
     )
 

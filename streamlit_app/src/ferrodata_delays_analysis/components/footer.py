@@ -2,8 +2,9 @@
 Footer Component - Page footer with credits and information
 """
 
-import streamlit as st
 from datetime import datetime
+
+import streamlit as st
 
 
 def render_footer():

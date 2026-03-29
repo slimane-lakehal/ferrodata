@@ -4,22 +4,23 @@ Démontre l'utilisation des composants réutilisables
 """
 
 import streamlit as st
-import pandas as pd
+
 from ferrodata_delays_analysis.components.charts import (
-    create_line_chart,
-    create_pie_chart,
     create_bar_chart,
+    create_line_chart,
     create_multi_line_chart,
-    generate_sample_data
+    create_pie_chart,
+    generate_sample_data,
 )
 from ferrodata_delays_analysis.components.footer import render_footer
 
+
 def main():
     """Dashboard avec graphiques interactifs utilisant les composants modulaires."""
-    
+
     st.title(":material/insert_chart: Dashboard Analytics")
     st.markdown("*Démonstration des composants graphiques réutilisables*")
-    
+
     # ========================================
     # CHARGEMENT DES DONNÉES
     # ========================================
@@ -27,16 +28,16 @@ def main():
     @st.cache_data
     def load_data():
         return generate_sample_data(365)  # 1 an de données
-    
+
     df = load_data()
-    
+
     # ========================================
     # SECTION FILTRES
     # ========================================
     st.subheader(":material/filter_alt: Filtres")
-    
+
     col1, col2 = st.columns([2, 3])
-    
+
     with col1:
         start_date = st.date_input(
             "Date début",
@@ -52,7 +53,7 @@ def main():
             min_value=df['date'].min().date(),
             max_value=df['date'].max().date()
         )
-   
+
     st.write("**Catégories**")
 
     categories = st.pills(
@@ -62,21 +63,21 @@ def main():
         selection_mode="multi",
         label_visibility="collapsed"
     )
-    
+
     # Appliquer les filtres
     filtered_df = df[
         (df['date'].dt.date >= start_date) &
         (df['date'].dt.date <= end_date) &
         (df['category'].isin(categories))
     ]
-    
+
     # ========================================
     # KPIs RAPIDES
     # ========================================
     st.markdown("---")
-    
+
     col1, col2, col3, col4 = st.columns(4)
-    
+
     with col1:
         total_sales = filtered_df['sales'].sum()
         st.metric(
@@ -84,7 +85,7 @@ def main():
             f"€{total_sales:,.0f}".replace(',', ' '),
             delta=f"{filtered_df['sales'].pct_change().mean()*100:.1f}%"
         )
-    
+
     with col2:
         total_visits = filtered_df['visits'].sum()
         st.metric(
@@ -92,7 +93,7 @@ def main():
             f"{total_visits:,.0f}".replace(',', ' '),
             delta=f"{filtered_df['visits'].pct_change().mean()*100:.1f}%"
         )
-    
+
     with col3:
         avg_conversion = filtered_df['conversion_rate'].mean()
         st.metric(
@@ -100,7 +101,7 @@ def main():
             f"{avg_conversion*100:.2f}%",
             delta=f"{(avg_conversion - 0.05)*100:.2f}%"
         )
-    
+
     with col4:
         avg_basket = filtered_df['sales'].sum() / filtered_df['visits'].sum()
         st.metric(
@@ -108,17 +109,17 @@ def main():
             f"€{avg_basket:.2f}",
             delta="3.2%"
         )
-    
+
     # ========================================
     # GRAPHIQUES LIGNE 1 - ÉVOLUTION
     # ========================================
     st.markdown("---")
-    
+
     col1, col2 = st.columns(2)
-    
+
     with col1:
         st.subheader(":material/show_chart: Évolution des ventes")
-        
+
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_line = create_line_chart(
             filtered_df,
@@ -129,10 +130,10 @@ def main():
             height=400
         )
         st.plotly_chart(fig_line, use_container_width=True)
-    
+
     with col2:
         st.subheader(":material/trending_up: Évolution des visiteurs")
-        
+
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_visits = create_line_chart(
             filtered_df,
@@ -143,20 +144,20 @@ def main():
             height=400
         )
         st.plotly_chart(fig_visits, use_container_width=True)
-    
+
     # ========================================
     # GRAPHIQUES LIGNE 2 - RÉPARTITION
     # ========================================
     st.markdown("---")
-    
+
     col1, col2 = st.columns(2)
-    
+
     with col1:
         st.subheader(":material/pie_chart: Répartition par catégorie")
-        
+
         # Agréger les données par catégorie
         category_sales = filtered_df.groupby('category')['sales'].sum().reset_index()
-        
+
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_pie = create_pie_chart(
             category_sales,
@@ -166,14 +167,14 @@ def main():
             height=400
         )
         st.plotly_chart(fig_pie, use_container_width=True)
-    
+
     with col2:
         st.subheader(":material/bar_chart: Top 5 jours")
-        
+
         # Sélectionner les 5 meilleurs jours
         top_days = filtered_df.nlargest(5, 'sales')[['date', 'sales']].copy()
         top_days['date_str'] = top_days['date'].dt.strftime('%d/%m')
-        
+
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_bar = create_bar_chart(
             top_days,
@@ -184,19 +185,19 @@ def main():
             height=400
         )
         st.plotly_chart(fig_bar, use_container_width=True)
-    
+
     # ========================================
     # GRAPHIQUE MULTI-LIGNES
     # ========================================
     st.markdown("---")
     st.subheader(":material/multiline_chart: Vue d'ensemble multi-métriques")
-    
+
     # Préparer les données pour le graphique multi-lignes
     # Normaliser les échelles pour comparaison visuelle
     multi_df = filtered_df[['date', 'sales', 'visits']].copy()
     multi_df['sales_normalized'] = (multi_df['sales'] / multi_df['sales'].max()) * 100
     multi_df['visits_normalized'] = (multi_df['visits'] / multi_df['visits'].max()) * 100
-    
+
     # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
     fig_multi = create_multi_line_chart(
         multi_df,
@@ -206,24 +207,24 @@ def main():
         height=400
     )
     st.plotly_chart(fig_multi, use_container_width=True)
-    
+
     st.caption("*Données normalisées pour comparaison visuelle*")
-    
+
     # ========================================
     # TABLEAU DE DONNÉES
     # ========================================
     st.markdown("---")
     st.subheader(":material/table: Données détaillées")
-    
+
     # Options d'affichage
     col1, col2 = st.columns([3, 1])
-    
+
     with col2:
         show_all = st.checkbox("Afficher tout", value=False)
-    
+
     # Afficher le tableau
     display_df = filtered_df if show_all else filtered_df.head(100)
-    
+
     st.dataframe(
         display_df[['date', 'sales', 'visits', 'conversion_rate', 'category']],
         width="stretch",
@@ -240,18 +241,18 @@ def main():
             "category": st.column_config.TextColumn("Catégorie")
         }
     )
-    
+
     if not show_all:
         st.caption(f"*Affichage des 100 premières lignes sur {len(filtered_df)} total*")
-    
+
     # ========================================
     # SECTION EXPORT
     # ========================================
     st.markdown("---")
     st.subheader(":material/download: Export des données")
-    
+
     col1, col2, col3 = st.columns([1, 1, 2])
-    
+
     with col1:
         # Export CSV
         csv = filtered_df.to_csv(index=False)
@@ -261,7 +262,7 @@ def main():
             file_name="dashboard_data.csv",
             mime="text/csv"
         )
-    
+
     with col2:
         # Export des statistiques
         stats = filtered_df.describe().to_csv()
@@ -271,7 +272,7 @@ def main():
             file_name="dashboard_stats.csv",
             mime="text/csv"
         )
-    
+
     # ========================================
     # INFORMATIONS COMPLÉMENTAIRES
     # ========================================
@@ -299,7 +300,7 @@ def main():
         Tous les paramètres (couleurs, hauteur, titres) sont personnalisables 
         via les arguments des fonctions.
         """)
-    
+
     # Footer en fin de page
     render_footer()
 

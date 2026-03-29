@@ -4,12 +4,12 @@
 Visualize all SNCF stations on an interactive map with performance metrics.
 """
 
-import streamlit as st
-import pandas as pd
-import pydeck as pdk
 import numpy as np
-from ferrodata_delays_analysis.utils.database import query_data
+import pydeck as pdk
+import streamlit as st
+
 from ferrodata_delays_analysis.components.footer import render_footer
+from ferrodata_delays_analysis.utils.database import query_data
 
 
 def main():

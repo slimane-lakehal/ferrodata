@@ -4,11 +4,13 @@
 Executive overview of French train performance across TGV, TER, and Intercités services.
 """
 
-import streamlit as st
-import pandas as pd
 from datetime import datetime
-from ferrodata_delays_analysis.utils.database import query_data
+
+import streamlit as st
+
 from ferrodata_delays_analysis.components.footer import render_footer
+from ferrodata_delays_analysis.utils.database import query_data
+
 
 def main():
     """Home page with executive dashboard."""

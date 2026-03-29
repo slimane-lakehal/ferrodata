@@ -4,11 +4,12 @@
 Compare and analyze individual train routes with detailed performance metrics.
 """
 
-import streamlit as st
 import pandas as pd
 import plotly.express as px
-from ferrodata_delays_analysis.utils.database import query_data, get_all_routes
+import streamlit as st
+
 from ferrodata_delays_analysis.components.footer import render_footer
+from ferrodata_delays_analysis.utils.database import get_all_routes, query_data
 
 
 def main():

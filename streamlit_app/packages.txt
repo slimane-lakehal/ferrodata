@@ -1,0 +1,5 @@
+# System-level packages for Streamlit Community Cloud
+# These will be installed via apt-get
+
+# For DuckDB (if needed)
+# libstdc++6

@@ -1,9 +1,10 @@
 """Database connection utilities for DuckDB."""
 
-import streamlit as st
+from pathlib import Path
+
 import duckdb
 import pandas as pd
-from pathlib import Path
+import streamlit as st
 
 
 @st.cache_resource

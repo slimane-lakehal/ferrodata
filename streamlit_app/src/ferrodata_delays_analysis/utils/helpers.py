@@ -2,14 +2,13 @@
 Fonctions utilitaires et helpers pour l'application ferrodata
 """
 
-from typing import Callable
-import streamlit as st
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Union
 import hashlib
-import json
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional, Union
+
+import numpy as np
+import pandas as pd
+import streamlit as st
 
 
 def format_number(number: Union[int, float], prefix: str = "", suffix: str = "") -> str:
@@ -26,15 +25,15 @@ def format_number(number: Union[int, float], prefix: str = "", suffix: str = "")
     """
     if pd.isna(number):
         return "N/A"
-    
+
     if isinstance(number, float):
         formatted = f"{number:,.2f}"
     else:
         formatted = f"{number:,}"
-    
+
     # Remplacer les séparateurs anglais par français
     formatted = formatted.replace(",", " ")
-    
+
     return f"{prefix}{formatted}{suffix}"
 
 
@@ -51,7 +50,7 @@ def format_percentage(value: float, decimals: int = 1) -> str:
     """
     if pd.isna(value):
         return "N/A"
-    
+
     return f"{value * 100:.{decimals}f}%"
 
 
@@ -85,7 +84,7 @@ def calculate_growth_rate(current: float, previous: float) -> float:
     """
     if pd.isna(current) or pd.isna(previous) or previous == 0:
         return 0.0
-    
+
     return (current - previous) / previous
 
 
@@ -116,14 +115,14 @@ def filter_dataframe(df: pd.DataFrame, filters: Dict[str, Any]) -> pd.DataFrame:
         DataFrame filtré
     """
     filtered_df = df.copy()
-    
+
     for column, value in filters.items():
         if column in filtered_df.columns:
             if isinstance(value, list):
                 filtered_df = filtered_df[filtered_df[column].isin(value)]
             else:
                 filtered_df = filtered_df[filtered_df[column] == value]
-    
+
     return filtered_df
 
 
@@ -143,14 +142,14 @@ def generate_color_palette(n_colors: int, palette: str = "default") -> List[str]
         'warm': ['#FF6B6B', '#FFA07A', '#FFD700', '#FF7F50', '#FF69B4', '#FFB6C1', '#F0E68C'],
         'cool': ['#4ECDC4', '#45B7D1', '#87CEEB', '#98D8C8', '#B0E0E6', '#AFEEEE', '#E0FFFF']
     }
-    
+
     base_colors = palettes.get(palette, palettes['default'])
-    
+
     # Si on a besoin de plus de couleurs que disponibles, les répéter
     colors = []
     for i in range(n_colors):
         colors.append(base_colors[i % len(base_colors)])
-    
+
     return colors
 
 
@@ -168,10 +167,10 @@ def cache_data(key: str, data: Any, ttl: int = 3600) -> None:
         'timestamp': datetime.now(),
         'ttl': ttl
     }
-    
+
     if 'cache' not in st.session_state:
         st.session_state.cache = {}
-    
+
     st.session_state.cache[key] = cache_entry
 
 
@@ -187,14 +186,14 @@ def get_cached_data(key: str) -> Optional[Any]:
     """
     if 'cache' not in st.session_state or key not in st.session_state.cache:
         return None
-    
+
     cache_entry = st.session_state.cache[key]
-    
+
     # Vérifier si les données ne sont pas expirées
     if datetime.now() - cache_entry['timestamp'] > timedelta(seconds=cache_entry['ttl']):
         del st.session_state.cache[key]
         return None
-    
+
     return cache_entry['data']
 
 
@@ -224,7 +223,7 @@ def export_to_csv(df: pd.DataFrame, filename: str = None) -> str:
     """
     if filename is None:
         filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    
+
     return df.to_csv(index=False)
 
 
@@ -257,7 +256,7 @@ def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
     """
     if len(text) <= max_length:
         return text
-    
+
     return text[:max_length - len(suffix)] + suffix
 
 
@@ -288,7 +287,7 @@ def show_success_message(message: str, duration: int = 3) -> None:
     """
     success_placeholder = st.empty()
     success_placeholder.success(message)
-    
+
     # Note: Streamlit ne permet pas de supprimer automatiquement après X secondes
     # Cette fonction est préparée pour une future version qui le permettrait
 
@@ -303,16 +302,16 @@ def log_user_action(action: str, details: Dict[str, Any] = None) -> None:
     """
     if 'user_actions' not in st.session_state:
         st.session_state.user_actions = []
-    
+
     log_entry = {
         'timestamp': datetime.now().isoformat(),
         'action': action,
         'details': details or {},
         'session_id': st.session_state.get('session_id', 'unknown')
     }
-    
+
     st.session_state.user_actions.append(log_entry)
-    
+
     # Garder seulement les 100 dernières actions
     if len(st.session_state.user_actions) > 100:
         st.session_state.user_actions = st.session_state.user_actions[-100:]
@@ -320,7 +319,7 @@ def log_user_action(action: str, details: Dict[str, Any] = None) -> None:
 
 class DataProcessor:
     """Classe utilitaire pour le traitement des données."""
-    
+
     @staticmethod
     def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -334,12 +333,12 @@ class DataProcessor:
         """
         # Supprimer les doublons
         df_clean = df.drop_duplicates()
-        
+
         # Optionnel: remplir les valeurs manquantes
         # df_clean = df_clean.fillna(method='forward')
-        
+
         return df_clean
-    
+
     @staticmethod
     def aggregate_data(df: pd.DataFrame, group_by: str, agg_func: str = 'sum') -> pd.DataFrame:
         """
@@ -360,20 +359,20 @@ class DataProcessor:
 # Décorateurs utiles
 def timer(func: Callable[..., Any]) -> Callable[..., Any]:
     """Décorateur pour mesurer le temps d'exécution d'une fonction."""
-    import time
     import functools
-    
+    import time
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
-        
+
         execution_time = end_time - start_time
         st.sidebar.metric(f"⏱️ {func.__name__}", f"{execution_time:.3f}s")
-        
+
         return result
-    
+
     return wrapper
 
 
@@ -399,12 +398,12 @@ DEFAULT_COLORS = {
 if __name__ == "__main__":
     # Tests des fonctions utilitaires
     st.title("🔧 Test des fonctions utilitaires")
-    
+
     # Test de formatage de nombres
     st.subheader("Formatage de nombres")
     st.write(f"1234567 → {format_number(1234567)}")
     st.write(f"0.1542 → {format_percentage(0.1542)}")
-    
+
     # Test de la palette de couleurs
     st.subheader("Palette de couleurs")
     colors = generate_color_palette(5)

@@ -4,12 +4,11 @@
 Analyze TGV delay causes and identify patterns in operational disruptions.
 """
 
-import streamlit as st
-import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-from ferrodata_delays_analysis.utils.database import query_data
+import streamlit as st
+
 from ferrodata_delays_analysis.components.footer import render_footer
+from ferrodata_delays_analysis.utils.database import query_data
 
 
 def main():

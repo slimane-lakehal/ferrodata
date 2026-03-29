@@ -2,19 +2,20 @@
 Composant Charts - Graphiques réutilisables pour les visualisations
 """
 
-import streamlit as st
+from typing import List, Optional
+
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 from plotly.subplots import make_subplots
-import numpy as np
-from typing import Dict, List, Optional, Tuple
 
 
 def create_line_chart(
-    data: pd.DataFrame, 
-    x_col: str, 
-    y_col: str, 
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
     title: str = "Graphique linéaire",
     color: str = "#FF6B6B",
     height: int = 400
@@ -34,19 +35,19 @@ def create_line_chart(
         Figure Plotly
     """
     fig = px.line(
-        data, 
-        x=x_col, 
+        data,
+        x=x_col,
         y=y_col,
         title=title,
         template="plotly_white"
     )
-    
+
     fig.update_traces(
         line=dict(color=color, width=3),
         hovertemplate=f"<b>{x_col}</b>: %<br>" +
                      f"<b>{y_col}</b>: %<extra></extra>"
     )
-    
+
     fig.update_layout(
         height=height,
         showlegend=False,
@@ -54,14 +55,14 @@ def create_line_chart(
         xaxis_title=x_col.replace('_', ' ').title(),
         yaxis_title=y_col.replace('_', ' ').title()
     )
-    
+
     return fig
 
 
 def create_bar_chart(
-    data: pd.DataFrame, 
-    x_col: str, 
-    y_col: str, 
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
     title: str = "Graphique en barres",
     color: str = "#4ECDC4",
     height: int = 400
@@ -70,33 +71,33 @@ def create_bar_chart(
     Crée un graphique en barres personnalisé.
     """
     fig = px.bar(
-        data, 
-        x=x_col, 
+        data,
+        x=x_col,
         y=y_col,
         title=title,
         template="plotly_white"
     )
-    
+
     fig.update_traces(
         marker_color=color,
         hovertemplate=f"<b>{x_col}</b>: %<br>" +
                      f"<b>{y_col}</b>: %<extra></extra>"
     )
-    
+
     fig.update_layout(
         height=height,
         title_x=0.5,
         xaxis_title=x_col.replace('_', ' ').title(),
         yaxis_title=y_col.replace('_', ' ').title()
     )
-    
+
     return fig
 
 
 def create_pie_chart(
-    data: pd.DataFrame, 
-    names_col: str, 
-    values_col: str, 
+    data: pd.DataFrame,
+    names_col: str,
+    values_col: str,
     title: str = "Graphique circulaire",
     height: int = 400
 ) -> go.Figure:
@@ -104,7 +105,7 @@ def create_pie_chart(
     Crée un graphique circulaire personnalisé.
     """
     colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8']
-    
+
     fig = px.pie(
         data,
         values=values_col,
@@ -112,7 +113,7 @@ def create_pie_chart(
         title=title,
         color_discrete_sequence=colors
     )
-    
+
     fig.update_traces(
         textposition='inside',
         textinfo='percent+label',
@@ -120,20 +121,20 @@ def create_pie_chart(
                      "Valeur: %{value}<br>" +
                      "Pourcentage: %{percent}<extra></extra>"
     )
-    
+
     fig.update_layout(
         height=height,
         title_x=0.5,
         showlegend=True
     )
-    
+
     return fig
 
 
 def create_scatter_plot(
-    data: pd.DataFrame, 
-    x_col: str, 
-    y_col: str, 
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
     size_col: Optional[str] = None,
     color_col: Optional[str] = None,
     title: str = "Nuage de points",
@@ -143,8 +144,8 @@ def create_scatter_plot(
     Crée un nuage de points personnalisé.
     """
     fig = px.scatter(
-        data, 
-        x=x_col, 
+        data,
+        x=x_col,
         y=y_col,
         size=size_col,
         color=color_col,
@@ -152,14 +153,14 @@ def create_scatter_plot(
         template="plotly_white",
         color_continuous_scale="Viridis"
     )
-    
+
     fig.update_layout(
         height=height,
         title_x=0.5,
         xaxis_title=x_col.replace('_', ' ').title(),
         yaxis_title=y_col.replace('_', ' ').title()
     )
-    
+
     return fig
 
 
@@ -174,9 +175,9 @@ def create_multi_line_chart(
     Crée un graphique avec plusieurs lignes.
     """
     colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8']
-    
+
     fig = go.Figure()
-    
+
     for i, y_col in enumerate(y_cols):
         fig.add_trace(go.Scatter(
             x=data[x_col],
@@ -186,7 +187,7 @@ def create_multi_line_chart(
             line=dict(color=colors[i % len(colors)], width=3),
             marker=dict(size=6)
         ))
-    
+
     fig.update_layout(
         title=title,
         title_x=0.5,
@@ -196,7 +197,7 @@ def create_multi_line_chart(
         yaxis_title="Valeurs",
         hovermode='x unified'
     )
-    
+
     return fig
 
 
@@ -211,19 +212,19 @@ def create_heatmap(
     # Calculer la matrice de corrélation pour les colonnes numériques
     numeric_cols = data.select_dtypes(include=[np.number]).columns
     corr_matrix = data[numeric_cols].corr()
-    
+
     fig = px.imshow(
         corr_matrix,
         title=title,
         color_continuous_scale="RdBu_r",
         aspect="auto"
     )
-    
+
     fig.update_layout(
         height=height,
         title_x=0.5
     )
-    
+
     return fig
 
 
@@ -257,7 +258,7 @@ def create_gauge_chart(
             }
         }
     ))
-    
+
     fig.update_layout(height=height)
     return fig
 
@@ -280,24 +281,24 @@ def create_comparison_chart(
         subplot_titles=[label1, label2],
         specs=[[{"secondary_y": False}, {"secondary_y": False}]]
     )
-    
+
     fig.add_trace(
         go.Scatter(x=data1[x_col], y=data1[y_col], name=label1, line=dict(color='#FF6B6B')),
         row=1, col=1
     )
-    
+
     fig.add_trace(
         go.Scatter(x=data2[x_col], y=data2[y_col], name=label2, line=dict(color='#4ECDC4')),
         row=1, col=2
     )
-    
+
     fig.update_layout(
         title_text=title,
         title_x=0.5,
         height=height,
         showlegend=False
     )
-    
+
     return fig
 
 
@@ -305,9 +306,9 @@ def create_comparison_chart(
 def generate_sample_data(n_points: int = 100) -> pd.DataFrame:
     """Génère des données d'exemple pour tester les graphiques."""
     np.random.seed(42)
-    
+
     dates = pd.date_range(start='2024-01-01', periods=n_points, freq='D')
-    
+
     data = pd.DataFrame({
         'date': dates,
         'sales': np.random.normal(1000, 200, n_points).astype(int),
@@ -317,28 +318,28 @@ def generate_sample_data(n_points: int = 100) -> pd.DataFrame:
         'temperature': np.random.normal(20, 5, n_points),
         'humidity': np.random.normal(60, 10, n_points)
     })
-    
+
     return data
 
 
 def demo_charts():
     """Fonction de démonstration des graphiques."""
     st.title("🎨 Démonstration des composants graphiques")
-    
+
     # Générer des données d'exemple
     df = generate_sample_data(50)
-    
+
     # Graphique linéaire
     st.subheader("📈 Graphique linéaire")
     fig_line = create_line_chart(df, 'date', 'sales', "Évolution des ventes")
     st.plotly_chart(fig_line, use_container_width=True)
-    
+
     # Graphique en barres
     st.subheader("📊 Graphique en barres")
     category_data = df.groupby('category')['sales'].sum().reset_index()
     fig_bar = create_bar_chart(category_data, 'category', 'sales', "Ventes par catégorie")
     st.plotly_chart(fig_bar, use_container_width=True)
-    
+
     # Graphique circulaire
     st.subheader("🥧 Graphique circulaire")
     fig_pie = create_pie_chart(category_data, 'category', 'sales', "Répartition des ventes")
