@@ -2,7 +2,7 @@
 Composant Sidebar - Navigation et informations latérales
 """
 
-from datetime import datetime
+from datetime import date
 
 import streamlit as st
 
@@ -16,7 +16,7 @@ def render_sidebar():
 
         # Date range filter
         default_start = "2013-01-01"
-        default_end = datetime.now()
+        default_end = date.today()
 
         date_range = st.date_input(
             "Date Range",

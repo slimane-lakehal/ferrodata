@@ -150,9 +150,16 @@ def test_connection() -> bool:
     try:
         if _is_cloud():
             result = _get_bq_client().query("SELECT 1 AS test", location="EU").result()
+            print("BigQuery connection successful")
             return True if result else False
         else:
             conn = _get_duckdb()
+            print("DuckDB connection successful")
             return conn.execute("SELECT 1 AS test").fetchone()[0] == 1
     except Exception:
         return False
+
+
+if __name__ == "__main__":
+    print(test_connection())
+    print(MART_SCHEMA)

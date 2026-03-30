@@ -35,7 +35,7 @@ def main():
         ROUND(AVG(cancellation_rate), 2) as avg_cancellation,
         COUNT(DISTINCT month_start_date) as months_analyzed
     FROM {MART_SCHEMA}.agg_monthly_service_performance
-    WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
+    WHERE date(month_start_date) BETWEEN '{start_date}' AND '{end_date}'
         AND service_type IN ({",".join([f"'{s}'" for s in service_types])})
     """
 
@@ -91,7 +91,7 @@ def main():
         cancellation_rate,
         total_operated_trains
     FROM {MART_SCHEMA}.agg_monthly_service_performance
-    WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
+    WHERE date(month_start_date) BETWEEN '{start_date}' AND '{end_date}'
         AND service_type IN ({",".join([f"'{s}'" for s in service_types])})
     ORDER BY month_start_date, service_type
     """
@@ -100,7 +100,7 @@ def main():
         return
 
     trends_data = query_data(trends_query)
-    available_service_types= trends_data["service_type"].unique()
+    # available_service_types= trends_data["service_type"].unique()
 
     if not trends_data.empty:
 
@@ -112,14 +112,14 @@ def main():
             chart_data = trends_data.pivot(
                 index="date", columns="service_type", values="punctuality_rate"
             ).reset_index()
-            st.line_chart(chart_data, x="date", y=available_service_types)
+            st.line_chart(chart_data, x="date", y=service_types)
 
         with col2:
             st.markdown("#### Cancellation Rate Over Time")
             chart_data = trends_data.pivot(
                 index="date", columns="service_type", values="cancellation_rate"
             ).reset_index()
-            st.line_chart(chart_data, x="date", y=available_service_types)
+            st.line_chart(chart_data, x="date", y=service_types)
     else:
         st.warning("No data available for the selected date range and service types.")
     st.markdown("---")

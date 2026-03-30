@@ -17,6 +17,8 @@ dependencies = [
     "duckdb>=1.0.0",
     "python-dotenv>=1.0.0",
     "google-auth>=2.49.1",
+    "google-cloud>=0.34.0",
+    "google-cloud-bigquery>=3.40.1",
 ]
 
 [project.optional-dependencies]
