@@ -33,10 +33,9 @@ MART_SCHEMA = "sncf_analytics" if _is_cloud() else "analytics_analytics"
 
 @st.cache_resource
 def _get_bq_client() -> bigquery.Client:
-    credentials = service_account.Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"]
-    )
-    return bigquery.Client(credentials=credentials)
+    sa_info = st.secrets["gcp_service_account"]
+    credentials = service_account.Credentials.from_service_account_info(sa_info)
+    return bigquery.Client(credentials=credentials, project=sa_info["project_id"])
 
 
 def _get_duckdb():
@@ -69,13 +68,19 @@ def query_data(query: str) -> pd.DataFrame:
     if _is_cloud():
         try:
             return _get_bq_client().query(query, location="EU").to_dataframe()
-        except Exception:
+        except Exception as e:
+            st.error(f"❌ BigQuery error: {type(e).__name__}: {e}")
+            with st.expander("🔍 Query"):
+                st.code(query, language="sql")
             return pd.DataFrame()
     else:
         try:
             conn = _get_duckdb()
             return conn.execute(query).df()
-        except Exception:
+        except Exception as e:
+            st.error(f"❌ DuckDB error: {type(e).__name__}: {e}")
+            with st.expander("🔍 Query"):
+                st.code(query, language="sql")
             return pd.DataFrame()
 
 

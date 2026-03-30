@@ -12,6 +12,7 @@ numpy>=1.24.0
 # Database
 duckdb>=1.0.0
 google-cloud-bigquery>=3.0.0
+db-dtypes>=1.0.0
 
 # Visualization
 plotly>=5.15.0
