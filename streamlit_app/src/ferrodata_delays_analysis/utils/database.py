@@ -1,51 +1,61 @@
-"""Database connection utilities for DuckDB."""
+"""Database connection utilities — DuckDB (dev) or BigQuery (Streamlit Cloud)."""
 
 from pathlib import Path
 
-import duckdb
 import pandas as pd
 import streamlit as st
 
 
+# ---------------------------------------------------------------------------
+# Backend detection
+# ---------------------------------------------------------------------------
+
+def _is_cloud() -> bool:
+    """Return True when GCP credentials are present in Streamlit secrets."""
+    try:
+        return "gcp_service_account" in st.secrets
+    except FileNotFoundError:
+        return False
+
+
+# Schema where dbt mart tables live in each backend:
+#   DuckDB  → target schema "analytics" + custom "analytics" = "analytics_analytics"
+#   BigQuery → target dataset "sncf"    + custom "analytics" = "sncf_analytics"
+_MART_SCHEMA = "sncf_analytics" if _is_cloud() else "analytics_analytics"
+
+
+# ---------------------------------------------------------------------------
+# Connections
+# ---------------------------------------------------------------------------
+
 @st.cache_resource
-def get_db():
-    """
-    Get cached DuckDB connection.
+def _get_duckdb():
+    import duckdb
 
-    Returns:
-        duckdb.DuckDBPyConnection: Database connection
-    """
-    # Path to DuckDB file (relative to project root)
     db_path = Path(__file__).parent.parent.parent.parent.parent / "ferrodata.duckdb"
-
     if not db_path.exists():
         st.error(f"❌ Database not found at: {db_path}")
-        st.info(f"📍 Looking for database at: {db_path.absolute()}")
         st.stop()
-
     try:
-        conn = duckdb.connect(str(db_path), read_only=True)
-        return conn
+        return duckdb.connect(str(db_path), read_only=True)
     except Exception as e:
-        st.error(f"❌ Failed to connect to database: {e}")
+        st.error(f"❌ Failed to connect to DuckDB: {e}")
         st.stop()
 
 
-@st.cache_data(ttl=300)  # Cache for 5 minutes
+def _get_bq():
+    return st.connection("bigquery", type="bigquery")
+
+
+# ---------------------------------------------------------------------------
+# Query execution
+# ---------------------------------------------------------------------------
+
+@st.cache_data(ttl=300)
 def query_data_cached(_conn, query: str) -> pd.DataFrame:
-    """
-    Execute SQL query and return results as DataFrame.
-
-    Args:
-        _conn: DuckDB connection (prefixed with _ to avoid hashing)
-        query: SQL query string
-
-    Returns:
-        pd.DataFrame: Query results
-    """
+    """Execute a SQL query against DuckDB and return a DataFrame."""
     try:
-        result = _conn.execute(query).df()
-        return result
+        return _conn.execute(query).df()
     except Exception as e:
         st.error(f"❌ Query failed: {e}")
         with st.expander("🔍 View failed query"):
@@ -53,70 +63,60 @@ def query_data_cached(_conn, query: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def query_data(query: str) -> pd.DataFrame:
+def query_data(query: str, ttl: int = 300) -> pd.DataFrame:
     """
-    Convenience function to execute query with cached connection.
+    Execute a SQL query against the active backend and return a DataFrame.
 
-    Args:
-        query: SQL query string
-
-    Returns:
-        pd.DataFrame: Query results
+    Uses BigQuery on Streamlit Cloud (when gcp_service_account is in secrets),
+    DuckDB otherwise.
     """
-    conn = get_db()
-    return query_data_cached(conn, query)
+    if _is_cloud():
+        try:
+            return _get_bq().query(query, ttl=ttl)
+        except Exception as e:
+            st.error(f"❌ BigQuery query failed: {e}")
+            with st.expander("🔍 View failed query"):
+                st.code(query, language="sql")
+            return pd.DataFrame()
+    else:
+        conn = _get_duckdb()
+        return query_data_cached(conn, query)
 
 
-@st.cache_data(ttl=3600)  # Cache for 1 hour
+# ---------------------------------------------------------------------------
+# Domain helpers
+# ---------------------------------------------------------------------------
+
+@st.cache_data(ttl=3600)
 def get_available_date_range() -> tuple:
-    """
-    Get the min and max dates available in the data.
-
-    Returns:
-        tuple: (min_date, max_date)
-    """
-    query = """
+    query = f"""
     SELECT
         MIN(date) as min_date,
         MAX(date) as max_date
-    FROM analytics_analytics.fct_train_punctuality
+    FROM {_MART_SCHEMA}.fct_train_punctuality
     """
-    result = query_data(query)
-
+    result = query_data(query, ttl=3600)
     if not result.empty:
-        return (result['min_date'].iloc[0], result['max_date'].iloc[0])
+        return (result["min_date"].iloc[0], result["max_date"].iloc[0])
     return (None, None)
 
 
 @st.cache_data(ttl=3600)
 def get_service_types() -> list:
-    """
-    Get list of available service types.
-
-    Returns:
-        list: Service type names
-    """
-    query = """
+    query = f"""
     SELECT DISTINCT service_type
-    FROM analytics_analytics.fct_train_punctuality
+    FROM {_MART_SCHEMA}.fct_train_punctuality
     ORDER BY service_type
     """
-    result = query_data(query)
-
+    result = query_data(query, ttl=3600)
     if not result.empty:
-        return result['service_type'].tolist()
+        return result["service_type"].tolist()
     return []
 
 
 @st.cache_data(ttl=3600)
 def get_all_stations() -> pd.DataFrame:
-    """
-    Get all stations with coordinates.
-
-    Returns:
-        pd.DataFrame: Station information
-    """
-    query = """
+    query = f"""
     SELECT
         station_id,
         station_name,
@@ -127,45 +127,35 @@ def get_all_stations() -> pd.DataFrame:
         station_tier,
         has_passenger_service,
         total_trains_handled
-    FROM analytics_analytics.dim_stations
+    FROM {_MART_SCHEMA}.dim_stations
     WHERE has_passenger_service = true
         AND longitude IS NOT NULL
         AND latitude IS NOT NULL
     ORDER BY total_trains_handled DESC
     """
-    return query_data(query)
+    return query_data(query, ttl=3600)
 
 
 @st.cache_data(ttl=3600)
 def get_all_routes() -> list:
-    """
-    Get list of all unique routes.
-
-    Returns:
-        list: Route names
-    """
-    query = """
+    query = f"""
     SELECT DISTINCT route
-    FROM analytics_analytics.agg_route_performance
+    FROM {_MART_SCHEMA}.agg_route_performance
     ORDER BY route
     """
-    result = query_data(query)
-
+    result = query_data(query, ttl=3600)
     if not result.empty:
-        return result['route'].tolist()
+        return result["route"].tolist()
     return []
 
 
 def test_connection() -> bool:
-    """
-    Test if database connection is working.
-
-    Returns:
-        bool: True if connection successful
-    """
     try:
-        conn = get_db()
-        result = conn.execute("SELECT 1 as test").fetchone()
-        return result[0] == 1
-    except:
+        if _is_cloud():
+            result = _get_bq().query("SELECT 1 AS test", ttl=0)
+            return not result.empty
+        else:
+            conn = _get_duckdb()
+            return conn.execute("SELECT 1 AS test").fetchone()[0] == 1
+    except Exception:
         return False
