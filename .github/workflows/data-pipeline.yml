@@ -25,17 +25,19 @@ jobs:
           version: "latest"
 
       - name: Install dependencies
-        run: uv sync --package ferrodata-ingestion
+        working-directory: ingestion
+        run: uv sync
 
       - name: Write GCP credentials
         run: echo '${{ secrets.GCP_SERVICE_ACCOUNT }}' > /tmp/gcp_credentials.json
 
       - name: Run ingestion pipeline
+        working-directory: ingestion
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           BQ_DATASET: raw_sncf
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp_credentials.json
-        run: uv run ferrodata-ingest --env prod --bq-only
+        run: uv run main.py --env prod --bq-only
 
   transform:
     name: dbt Transform & Test
