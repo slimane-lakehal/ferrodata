@@ -15,13 +15,12 @@ def configure_page():
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
-            'About': """
+            "About": """
             # ferrodata
             Interactive dashboard for analysing the performance of the french railway plateform.
-            
             Developped by Slimane Lakehal
             """
-        }
+        },
     )
 
 
@@ -31,50 +30,12 @@ def main():
 
     # Titre principal
     st.title("🚀 ferrodata")
-    st.markdown("*Interactive dashboard for analysing the performance of the french railway plateform.*")
+    st.markdown(
+        "*Interactive dashboard for analysing the performance of the french railway plateform.*"
+    )
 
     # Sidebar
     render_sidebar()
-
-    # Contenu principal
-    col1, col2, col3 = st.columns([1, 2, 1])
-
-    with col2:
-        st.markdown("---")
-
-        # Message de bienvenue
-        st.markdown("""
-        ## 👋 Bienvenue !
-        
-        Cette application démo vous montre les bonnes pratiques pour structurer 
-        vos projets Streamlit de façon professionnelle.
-        
-        ### 🎯 Fonctionnalités de ce template :
-        - ✅ Structure modulaire et organisée
-        - ✅ Pages multiples avec navigation
-        - ✅ Composants réutilisables
-        - ✅ Configuration optimisée
-        - ✅ Données d'exemple intégrées
-        
-        ### 🧭 Navigation
-        Utilisez la **sidebar** à gauche pour naviguer entre les différentes pages.
-        """)
-
-        # Call-to-action subtil pour la formation
-        with st.expander("🎓 Envie d'aller plus loin ?"):
-            st.markdown("""
-            Ce template démo vous donne un aperçu des possibilités.
-            
-            **Dans notre formation complète, vous apprendrez :**
-            - Tests automatisés et CI/CD
-            - Déploiement en production
-            - Gestion avancée des états
-            - Authentification utilisateur
-            - Intégration base de données
-            - Monitoring et analytics
-            
-            👉 [**Découvrir la formation**](https://votre-lien-formation.com)
-            """)
 
     # Footer
     st.markdown("---")
@@ -83,7 +44,7 @@ def main():
         "Développé avec ❤️ par Slimane Lakehal | "
         "<a href='mailto:lakehalslimane@gmail.com'>Contact</a>"
         "</div>",
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 

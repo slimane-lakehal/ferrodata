@@ -4,12 +4,12 @@
 Executive overview of French train performance across TGV, TER, and Intercités services.
 """
 
-from datetime import datetime
 
 import streamlit as st
 
 from ferrodata_delays_analysis.components.footer import render_footer
-from ferrodata_delays_analysis.utils.database import query_data, MART_SCHEMA
+from ferrodata_delays_analysis.components.sidebar import render_sidebar
+from ferrodata_delays_analysis.utils.database import MART_SCHEMA, query_data
 
 
 def main():
@@ -23,40 +23,10 @@ def main():
     """)
 
     # Sidebar filters
-    with st.sidebar:
-        st.header("🔍 Filters")
-        st.markdown("---")
-
-        # Date range filter
-        default_start = '2013-01-01'
-        default_end = datetime.now()
-
-        date_range = st.date_input(
-            "Date Range",
-            value=(default_start, default_end),
-            help="Select the time period for analysis"
-        )
-
-        if len(date_range) == 2:
-            start_date, end_date = date_range
-        else:
-            start_date = default_start
-            end_date = default_end
-
-        # Service type filter
-        service_types = st.multiselect(
-            "Service Type",
-            options=["TGV", "TER", "Intercités"],
-            default=["TGV", "TER", "Intercités"],
-            help="Select which train services to include"
-        )
-
-        st.markdown("---")
-        st.info("💡 Use the navigation above to explore detailed analytics")
+    start_date, end_date, service_types = render_sidebar()
 
     # Main dashboard
     st.header("📊 Executive Summary")
-
     # KPI Cards
     kpi_query = f"""
     SELECT
@@ -66,8 +36,12 @@ def main():
         COUNT(DISTINCT month_start_date) as months_analyzed
     FROM {MART_SCHEMA}.agg_monthly_service_performance
     WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
-        AND service_type IN ({','.join([f"'{s}'" for s in service_types])})
+        AND service_type IN ({",".join([f"'{s}'" for s in service_types])})
     """
+
+    if not service_types:
+        st.warning("No service types selected.")
+        return
 
     kpi_data = query_data(kpi_query)
 
@@ -78,30 +52,30 @@ def main():
             st.metric(
                 label="🚂 Total Trains Operated",
                 value=f"{int(kpi_data['total_trains'].iloc[0]):,}",
-                help="Total number of trains operated in selected period"
+                help="Total number of trains operated in selected period",
             )
 
         with col2:
-            punctuality = kpi_data['avg_punctuality'].iloc[0]
+            punctuality = kpi_data["avg_punctuality"].iloc[0]
             st.metric(
                 label="⏰ Avg Punctuality Rate",
                 value=f"{punctuality}%",
-                help="Percentage of trains arriving on time"
+                help="Percentage of trains arriving on time",
             )
 
         with col3:
-            cancellation = kpi_data['avg_cancellation'].iloc[0]
+            cancellation = kpi_data["avg_cancellation"].iloc[0]
             st.metric(
                 label="❌ Avg Cancellation Rate",
                 value=f"{cancellation}%",
-                help="Percentage of planned trains that were cancelled"
+                help="Percentage of planned trains that were cancelled",
             )
 
         with col4:
             st.metric(
                 label="📅 Analysis Period",
                 value=f"{int(kpi_data['months_analyzed'].iloc[0])} months",
-                help="Number of months included in this analysis"
+                help="Number of months included in this analysis",
             )
 
     st.markdown("---")
@@ -118,34 +92,36 @@ def main():
         total_operated_trains
     FROM {MART_SCHEMA}.agg_monthly_service_performance
     WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
-        AND service_type IN ({','.join([f"'{s}'" for s in service_types])})
+        AND service_type IN ({",".join([f"'{s}'" for s in service_types])})
     ORDER BY month_start_date, service_type
     """
+    if not service_types:
+        st.warning("No service types selected.")
+        return
 
     trends_data = query_data(trends_query)
+    available_service_types= trends_data["service_type"].unique()
 
     if not trends_data.empty:
+
         # Punctuality trend
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown("#### Punctuality Rate Over Time")
             chart_data = trends_data.pivot(
-                index='date',
-                columns='service_type',
-                values='punctuality_rate'
+                index="date", columns="service_type", values="punctuality_rate"
             ).reset_index()
-            st.line_chart(chart_data, x='date', y=service_types)
+            st.line_chart(chart_data, x="date", y=available_service_types)
 
         with col2:
             st.markdown("#### Cancellation Rate Over Time")
             chart_data = trends_data.pivot(
-                index='date',
-                columns='service_type',
-                values='cancellation_rate'
+                index="date", columns="service_type", values="cancellation_rate"
             ).reset_index()
-            st.line_chart(chart_data, x='date', y=service_types)
-
+            st.line_chart(chart_data, x="date", y=available_service_types)
+    else:
+        st.warning("No data available for the selected date range and service types.")
     st.markdown("---")
 
     # Service comparison
@@ -160,7 +136,7 @@ def main():
         ROUND(AVG(delay_rate), 2) as avg_delay_rate
     FROM {MART_SCHEMA}.agg_monthly_service_performance
     WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
-        AND service_type IN ({','.join([f"'{s}'" for s in service_types])})
+        AND service_type IN ({",".join([f"'{s}'" for s in service_types])})
     GROUP BY service_type
     ORDER BY avg_punctuality DESC
     """
@@ -174,23 +150,17 @@ def main():
             hide_index=True,
             column_config={
                 "service_type": "Service Type",
-                "trains_operated": st.column_config.NumberColumn(
-                    "Trains Operated",
-                    format="%d"
-                ),
+                "trains_operated": st.column_config.NumberColumn("Trains Operated", format="%d"),
                 "avg_punctuality": st.column_config.NumberColumn(
-                    "Avg Punctuality (%)",
-                    format="%.2f%%"
+                    "Avg Punctuality (%)", format="%.2f%%"
                 ),
                 "avg_cancellation": st.column_config.NumberColumn(
-                    "Avg Cancellation (%)",
-                    format="%.2f%%"
+                    "Avg Cancellation (%)", format="%.2f%%"
                 ),
                 "avg_delay_rate": st.column_config.NumberColumn(
-                    "Avg Delay Rate (%)",
-                    format="%.2f%%"
+                    "Avg Delay Rate (%)", format="%.2f%%"
                 ),
-            }
+            },
         )
 
     st.markdown("---")
@@ -222,14 +192,10 @@ def main():
                     "route": "Route",
                     "service_type": "Service",
                     "punctuality_rate": st.column_config.NumberColumn(
-                        "Punctuality",
-                        format="%.2f%%"
+                        "Punctuality", format="%.2f%%"
                     ),
-                    "trains": st.column_config.NumberColumn(
-                        "Trains",
-                        format="%d"
-                    ),
-                }
+                    "trains": st.column_config.NumberColumn("Trains", format="%d"),
+                },
             )
 
     with col2:
@@ -256,18 +222,15 @@ def main():
                     "route": "Route",
                     "service_type": "Service",
                     "punctuality_rate": st.column_config.NumberColumn(
-                        "Punctuality",
-                        format="%.2f%%"
+                        "Punctuality", format="%.2f%%"
                     ),
-                    "trains": st.column_config.NumberColumn(
-                        "Trains",
-                        format="%d"
-                    ),
-                }
+                    "trains": st.column_config.NumberColumn("Trains", format="%d"),
+                },
             )
 
     # Footer
     render_footer()
+
 
 if __name__ == "__main__":
     main()

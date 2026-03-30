@@ -5,7 +5,7 @@ Interactive dashboard for analyzing French railway performance.
 
 Author: Slimane Lakehal <lakehalslimane@gmail.com>
 Template: Based on Gaël Penessot's modern Streamlit template
-         (https://github.com/gpenessot)
+         (https://www.mes-formations-data.fr/streamlit-turbo)
 """
 
 import sys
@@ -27,31 +27,26 @@ st.set_page_config(
 # Define pages with top navigation
 pages = [
     st.Page(
-        "src/ferrodata_delays_analysis/pages/1_home.py",
+        "src/ferrodata_delays_analysis/pages/home.py",
         title="Home",
         icon=":material/home:",
         default=True
     ),
     st.Page(
-        "src/ferrodata_delays_analysis/pages/4_station_map.py",
+        "src/ferrodata_delays_analysis/pages/station_map.py",
         title="Station Map",
         icon=":material/map:"
     ),
     st.Page(
-        "src/ferrodata_delays_analysis/pages/5_route_explorer.py",
+        "src/ferrodata_delays_analysis/pages/route_explorer.py",
         title="Route Explorer",
         icon=":material/route:"
     ),
     st.Page(
-        "src/ferrodata_delays_analysis/pages/6_delay_analysis.py",
+        "src/ferrodata_delays_analysis/pages/delay_analysis.py",
         title="Delay Analysis",
         icon=":material/analytics:"
-    ),
-    st.Page(
-        "src/ferrodata_delays_analysis/pages/3_settings.py",
-        title="Settings",
-        icon=":material/settings:"
-    ),
+    )
 ]
 
 # Navigation at top position

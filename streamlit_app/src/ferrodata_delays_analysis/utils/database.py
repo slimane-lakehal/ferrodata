@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-from google.oauth2 import service_account
 from google.cloud import bigquery
-
+from google.oauth2 import service_account
 
 # ---------------------------------------------------------------------------
 # Backend detection
 # ---------------------------------------------------------------------------
+
 
 def _is_cloud() -> bool:
     """Return True when GCP credentials are present in Streamlit secrets."""
@@ -29,6 +29,7 @@ MART_SCHEMA = "sncf_analytics" if _is_cloud() else "analytics_analytics"
 # ---------------------------------------------------------------------------
 # Connections
 # ---------------------------------------------------------------------------
+
 
 @st.cache_resource
 def _get_bq_client() -> bigquery.Client:
@@ -56,6 +57,7 @@ def _get_duckdb():
 # Query execution
 # ---------------------------------------------------------------------------
 
+
 @st.cache_data(ttl=300)
 def query_data(query: str) -> pd.DataFrame:
     """
@@ -67,25 +69,20 @@ def query_data(query: str) -> pd.DataFrame:
     if _is_cloud():
         try:
             return _get_bq_client().query(query, location="EU").to_dataframe()
-        except Exception as e:
-            st.error(f"❌ BigQuery query failed: {e}")
-            with st.expander("🔍 View failed query"):
-                st.code(query, language="sql")
+        except Exception:
             return pd.DataFrame()
     else:
         try:
             conn = _get_duckdb()
             return conn.execute(query).df()
-        except Exception as e:
-            st.error(f"❌ Query failed: {e}")
-            with st.expander("🔍 View failed query"):
-                st.code(query, language="sql")
+        except Exception:
             return pd.DataFrame()
 
 
 # ---------------------------------------------------------------------------
 # Domain helpers
 # ---------------------------------------------------------------------------
+
 
 @st.cache_data(ttl=3600)
 def get_available_date_range() -> tuple:
@@ -153,7 +150,7 @@ def test_connection() -> bool:
     try:
         if _is_cloud():
             result = _get_bq_client().query("SELECT 1 AS test", location="EU").result()
-            return True
+            return True if result else False
         else:
             conn = _get_duckdb()
             return conn.execute("SELECT 1 AS test").fetchone()[0] == 1

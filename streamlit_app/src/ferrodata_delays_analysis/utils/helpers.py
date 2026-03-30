@@ -14,12 +14,12 @@ import streamlit as st
 def format_number(number: Union[int, float], prefix: str = "", suffix: str = "") -> str:
     """
     Formate un nombre avec des séparateurs de milliers.
-    
+
     Args:
         number: Nombre à formater
         prefix: Préfixe (ex: "$", "€")
         suffix: Suffixe (ex: "%", "€")
-    
+
     Returns:
         Nombre formaté en string
     """
@@ -40,11 +40,11 @@ def format_number(number: Union[int, float], prefix: str = "", suffix: str = "")
 def format_percentage(value: float, decimals: int = 1) -> str:
     """
     Formate un pourcentage.
-    
+
     Args:
         value: Valeur décimale (ex: 0.15 pour 15%)
         decimals: Nombre de décimales
-    
+
     Returns:
         Pourcentage formaté
     """
@@ -57,12 +57,12 @@ def format_percentage(value: float, decimals: int = 1) -> str:
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
     """
     Division sécurisée qui évite la division par zéro.
-    
+
     Args:
         numerator: Numérateur
         denominator: Dénominateur
         default: Valeur par défaut si division par zéro
-    
+
     Returns:
         Résultat de la division ou valeur par défaut
     """
@@ -74,11 +74,11 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
 def calculate_growth_rate(current: float, previous: float) -> float:
     """
     Calcule le taux de croissance entre deux valeurs.
-    
+
     Args:
         current: Valeur actuelle
         previous: Valeur précédente
-    
+
     Returns:
         Taux de croissance (ex: 0.15 pour +15%)
     """
@@ -88,15 +88,15 @@ def calculate_growth_rate(current: float, previous: float) -> float:
     return (current - previous) / previous
 
 
-def create_date_range(start_date: datetime, end_date: datetime, freq: str = 'D') -> List[datetime]:
+def create_date_range(start_date: datetime, end_date: datetime, freq: str = "D") -> List[datetime]:
     """
     Crée une liste de dates entre deux dates.
-    
+
     Args:
         start_date: Date de début
         end_date: Date de fin
         freq: Fréquence ('D' pour jour, 'W' pour semaine, etc.)
-    
+
     Returns:
         Liste des dates
     """
@@ -106,11 +106,11 @@ def create_date_range(start_date: datetime, end_date: datetime, freq: str = 'D')
 def filter_dataframe(df: pd.DataFrame, filters: Dict[str, Any]) -> pd.DataFrame:
     """
     Filtre un DataFrame selon des critères donnés.
-    
+
     Args:
         df: DataFrame à filtrer
         filters: Dictionnaire des filtres {colonne: valeur(s)}
-    
+
     Returns:
         DataFrame filtré
     """
@@ -129,21 +129,21 @@ def filter_dataframe(df: pd.DataFrame, filters: Dict[str, Any]) -> pd.DataFrame:
 def generate_color_palette(n_colors: int, palette: str = "default") -> List[str]:
     """
     Génère une palette de couleurs.
-    
+
     Args:
         n_colors: Nombre de couleurs nécessaires
         palette: Type de palette ('default', 'warm', 'cool')
-    
+
     Returns:
         Liste de codes couleur hexadécimaux
     """
     palettes = {
-        'default': ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#DDA0DD', '#87CEEB'],
-        'warm': ['#FF6B6B', '#FFA07A', '#FFD700', '#FF7F50', '#FF69B4', '#FFB6C1', '#F0E68C'],
-        'cool': ['#4ECDC4', '#45B7D1', '#87CEEB', '#98D8C8', '#B0E0E6', '#AFEEEE', '#E0FFFF']
+        "default": ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#DDA0DD", "#87CEEB"],
+        "warm": ["#FF6B6B", "#FFA07A", "#FFD700", "#FF7F50", "#FF69B4", "#FFB6C1", "#F0E68C"],
+        "cool": ["#4ECDC4", "#45B7D1", "#87CEEB", "#98D8C8", "#B0E0E6", "#AFEEEE", "#E0FFFF"],
     }
 
-    base_colors = palettes.get(palette, palettes['default'])
+    base_colors = palettes.get(palette, palettes["default"])
 
     # Si on a besoin de plus de couleurs que disponibles, les répéter
     colors = []
@@ -156,19 +156,15 @@ def generate_color_palette(n_colors: int, palette: str = "default") -> List[str]
 def cache_data(key: str, data: Any, ttl: int = 3600) -> None:
     """
     Met en cache des données dans la session Streamlit.
-    
+
     Args:
         key: Clé du cache
         data: Données à cacher
         ttl: Durée de vie en secondes
     """
-    cache_entry = {
-        'data': data,
-        'timestamp': datetime.now(),
-        'ttl': ttl
-    }
+    cache_entry = {"data": data, "timestamp": datetime.now(), "ttl": ttl}
 
-    if 'cache' not in st.session_state:
+    if "cache" not in st.session_state:
         st.session_state.cache = {}
 
     st.session_state.cache[key] = cache_entry
@@ -177,33 +173,33 @@ def cache_data(key: str, data: Any, ttl: int = 3600) -> None:
 def get_cached_data(key: str) -> Optional[Any]:
     """
     Récupère des données du cache.
-    
+
     Args:
         key: Clé du cache
-    
+
     Returns:
         Données cachées ou None si expirées/inexistantes
     """
-    if 'cache' not in st.session_state or key not in st.session_state.cache:
+    if "cache" not in st.session_state or key not in st.session_state.cache:
         return None
 
     cache_entry = st.session_state.cache[key]
 
     # Vérifier si les données ne sont pas expirées
-    if datetime.now() - cache_entry['timestamp'] > timedelta(seconds=cache_entry['ttl']):
+    if datetime.now() - cache_entry["timestamp"] > timedelta(seconds=cache_entry["ttl"]):
         del st.session_state.cache[key]
         return None
 
-    return cache_entry['data']
+    return cache_entry["data"]
 
 
 def hash_string(text: str) -> str:
     """
     Génère un hash MD5 d'une chaîne de caractères.
-    
+
     Args:
         text: Texte à hasher
-    
+
     Returns:
         Hash MD5 en hexadécimal
     """
@@ -213,11 +209,11 @@ def hash_string(text: str) -> str:
 def export_to_csv(df: pd.DataFrame, filename: str = None) -> str:
     """
     Exporte un DataFrame au format CSV.
-    
+
     Args:
         df: DataFrame à exporter
         filename: Nom du fichier (optionnel)
-    
+
     Returns:
         CSV en format string
     """
@@ -230,57 +226,55 @@ def export_to_csv(df: pd.DataFrame, filename: str = None) -> str:
 def validate_email(email: str) -> bool:
     """
     Valide un format d'email basique.
-    
+
     Args:
         email: Adresse email à valider
-    
+
     Returns:
         True si le format est correct
     """
     import re
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.match(pattern, email) is not None
 
 
 def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
     """
     Tronque un texte à une longueur maximale.
-    
+
     Args:
         text: Texte à tronquer
         max_length: Longueur maximale
         suffix: Suffixe à ajouter si tronqué
-    
+
     Returns:
         Texte tronqué
     """
     if len(text) <= max_length:
         return text
 
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix
 
 
 def create_download_link(data: str, filename: str, mime_type: str = "text/plain") -> None:
     """
     Crée un lien de téléchargement Streamlit.
-    
+
     Args:
         data: Données à télécharger
         filename: Nom du fichier
         mime_type: Type MIME du fichier
     """
     st.download_button(
-        label=f"📥 Télécharger {filename}",
-        data=data,
-        file_name=filename,
-        mime=mime_type
+        label=f"📥 Télécharger {filename}", data=data, file_name=filename, mime=mime_type
     )
 
 
 def show_success_message(message: str, duration: int = 3) -> None:
     """
     Affiche un message de succès temporaire.
-    
+
     Args:
         message: Message à afficher
         duration: Durée en secondes
@@ -295,19 +289,19 @@ def show_success_message(message: str, duration: int = 3) -> None:
 def log_user_action(action: str, details: Dict[str, Any] = None) -> None:
     """
     Enregistre une action utilisateur (pour analytics).
-    
+
     Args:
         action: Type d'action
         details: Détails supplémentaires
     """
-    if 'user_actions' not in st.session_state:
+    if "user_actions" not in st.session_state:
         st.session_state.user_actions = []
 
     log_entry = {
-        'timestamp': datetime.now().isoformat(),
-        'action': action,
-        'details': details or {},
-        'session_id': st.session_state.get('session_id', 'unknown')
+        "timestamp": datetime.now().isoformat(),
+        "action": action,
+        "details": details or {},
+        "session_id": st.session_state.get("session_id", "unknown"),
     }
 
     st.session_state.user_actions.append(log_entry)
@@ -324,10 +318,10 @@ class DataProcessor:
     def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         """
         Nettoie un DataFrame (supprime les doublons, gère les valeurs manquantes).
-        
+
         Args:
             df: DataFrame à nettoyer
-        
+
         Returns:
             DataFrame nettoyé
         """
@@ -340,15 +334,15 @@ class DataProcessor:
         return df_clean
 
     @staticmethod
-    def aggregate_data(df: pd.DataFrame, group_by: str, agg_func: str = 'sum') -> pd.DataFrame:
+    def aggregate_data(df: pd.DataFrame, group_by: str, agg_func: str = "sum") -> pd.DataFrame:
         """
         Agrège les données selon une colonne.
-        
+
         Args:
             df: DataFrame à agréger
             group_by: Colonne de regroupement
             agg_func: Fonction d'agrégation ('sum', 'mean', 'count', etc.)
-        
+
         Returns:
             DataFrame agrégé
         """
@@ -377,21 +371,15 @@ def timer(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 # Constantes utiles
-COMMON_DATE_FORMATS = [
-    "%Y-%m-%d",
-    "%d/%m/%Y",
-    "%m/%d/%Y",
-    "%Y-%m-%d %H:%M:%S",
-    "%d/%m/%Y %H:%M:%S"
-]
+COMMON_DATE_FORMATS = ["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S"]
 
 DEFAULT_COLORS = {
-    'primary': '#FF6B6B',
-    'secondary': '#4ECDC4',
-    'success': '#2ECC71',
-    'warning': '#F39C12',
-    'danger': '#E74C3C',
-    'info': '#3498DB'
+    "primary": "#FF6B6B",
+    "secondary": "#4ECDC4",
+    "success": "#2ECC71",
+    "warning": "#F39C12",
+    "danger": "#E74C3C",
+    "info": "#3498DB",
 }
 
 
@@ -408,4 +396,4 @@ if __name__ == "__main__":
     st.subheader("Palette de couleurs")
     colors = generate_color_palette(5)
     for i, color in enumerate(colors):
-        st.color_picker(f"Couleur {i+1}", color, disabled=True)
+        st.color_picker(f"Couleur {i + 1}", color, disabled=True)

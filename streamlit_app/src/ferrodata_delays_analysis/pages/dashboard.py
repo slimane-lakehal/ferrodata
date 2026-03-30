@@ -41,34 +41,34 @@ def main():
     with col1:
         start_date = st.date_input(
             "Date début",
-            value=df['date'].min().date(),
-            min_value=df['date'].min().date(),
-            max_value=df['date'].max().date()
+            value=df["date"].min().date(),
+            min_value=df["date"].min().date(),
+            max_value=df["date"].max().date(),
         )
 
     with col2:
         end_date = st.date_input(
             "Date fin",
-            value=df['date'].max().date(),
-            min_value=df['date'].min().date(),
-            max_value=df['date'].max().date()
+            value=df["date"].max().date(),
+            min_value=df["date"].min().date(),
+            max_value=df["date"].max().date(),
         )
 
     st.write("**Catégories**")
 
     categories = st.pills(
         "Categories",
-        options=df['category'].unique().tolist(),
-        default=df['category'].unique().tolist(),
+        options=df["category"].unique().tolist(),
+        default=df["category"].unique().tolist(),
         selection_mode="multi",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
     )
 
     # Appliquer les filtres
     filtered_df = df[
-        (df['date'].dt.date >= start_date) &
-        (df['date'].dt.date <= end_date) &
-        (df['category'].isin(categories))
+        (df["date"].dt.date >= start_date)
+        & (df["date"].dt.date <= end_date)
+        & (df["category"].isin(categories))
     ]
 
     # ========================================
@@ -79,36 +79,32 @@ def main():
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        total_sales = filtered_df['sales'].sum()
+        total_sales = filtered_df["sales"].sum()
         st.metric(
             "Ventes totales",
-            f"€{total_sales:,.0f}".replace(',', ' '),
-            delta=f"{filtered_df['sales'].pct_change().mean()*100:.1f}%"
+            f"€{total_sales:,.0f}".replace(",", " "),
+            delta=f"{filtered_df['sales'].pct_change().mean() * 100:.1f}%",
         )
 
     with col2:
-        total_visits = filtered_df['visits'].sum()
+        total_visits = filtered_df["visits"].sum()
         st.metric(
             "Visiteurs",
-            f"{total_visits:,.0f}".replace(',', ' '),
-            delta=f"{filtered_df['visits'].pct_change().mean()*100:.1f}%"
+            f"{total_visits:,.0f}".replace(",", " "),
+            delta=f"{filtered_df['visits'].pct_change().mean() * 100:.1f}%",
         )
 
     with col3:
-        avg_conversion = filtered_df['conversion_rate'].mean()
+        avg_conversion = filtered_df["conversion_rate"].mean()
         st.metric(
             "Taux de conversion",
-            f"{avg_conversion*100:.2f}%",
-            delta=f"{(avg_conversion - 0.05)*100:.2f}%"
+            f"{avg_conversion * 100:.2f}%",
+            delta=f"{(avg_conversion - 0.05) * 100:.2f}%",
         )
 
     with col4:
-        avg_basket = filtered_df['sales'].sum() / filtered_df['visits'].sum()
-        st.metric(
-            "Panier moyen",
-            f"€{avg_basket:.2f}",
-            delta="3.2%"
-        )
+        avg_basket = filtered_df["sales"].sum() / filtered_df["visits"].sum()
+        st.metric("Panier moyen", f"€{avg_basket:.2f}", delta="3.2%")
 
     # ========================================
     # GRAPHIQUES LIGNE 1 - ÉVOLUTION
@@ -123,11 +119,11 @@ def main():
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_line = create_line_chart(
             filtered_df,
-            x_col='date',
-            y_col='sales',
+            x_col="date",
+            y_col="sales",
             title="Ventes quotidiennes",
-            color='#1ed760',  # Couleur personnalisée
-            height=400
+            color="#1ed760",  # Couleur personnalisée
+            height=400,
         )
         st.plotly_chart(fig_line, use_container_width=True)
 
@@ -137,11 +133,11 @@ def main():
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_visits = create_line_chart(
             filtered_df,
-            x_col='date',
-            y_col='visits',
+            x_col="date",
+            y_col="visits",
             title="Visiteurs quotidiens",
-            color='#2d46b9',
-            height=400
+            color="#2d46b9",
+            height=400,
         )
         st.plotly_chart(fig_visits, use_container_width=True)
 
@@ -156,15 +152,15 @@ def main():
         st.subheader(":material/pie_chart: Répartition par catégorie")
 
         # Agréger les données par catégorie
-        category_sales = filtered_df.groupby('category')['sales'].sum().reset_index()
+        category_sales = filtered_df.groupby("category")["sales"].sum().reset_index()
 
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_pie = create_pie_chart(
             category_sales,
-            names_col='category',
-            values_col='sales',
+            names_col="category",
+            values_col="sales",
             title="Ventes par catégorie",
-            height=400
+            height=400,
         )
         st.plotly_chart(fig_pie, use_container_width=True)
 
@@ -172,17 +168,17 @@ def main():
         st.subheader(":material/bar_chart: Top 5 jours")
 
         # Sélectionner les 5 meilleurs jours
-        top_days = filtered_df.nlargest(5, 'sales')[['date', 'sales']].copy()
-        top_days['date_str'] = top_days['date'].dt.strftime('%d/%m')
+        top_days = filtered_df.nlargest(5, "sales")[["date", "sales"]].copy()
+        top_days["date_str"] = top_days["date"].dt.strftime("%d/%m")
 
         # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
         fig_bar = create_bar_chart(
             top_days,
-            x_col='date_str',
-            y_col='sales',
+            x_col="date_str",
+            y_col="sales",
             title="Top 5 journées de ventes",
-            color='#ffc862',
-            height=400
+            color="#ffc862",
+            height=400,
         )
         st.plotly_chart(fig_bar, use_container_width=True)
 
@@ -194,17 +190,17 @@ def main():
 
     # Préparer les données pour le graphique multi-lignes
     # Normaliser les échelles pour comparaison visuelle
-    multi_df = filtered_df[['date', 'sales', 'visits']].copy()
-    multi_df['sales_normalized'] = (multi_df['sales'] / multi_df['sales'].max()) * 100
-    multi_df['visits_normalized'] = (multi_df['visits'] / multi_df['visits'].max()) * 100
+    multi_df = filtered_df[["date", "sales", "visits"]].copy()
+    multi_df["sales_normalized"] = (multi_df["sales"] / multi_df["sales"].max()) * 100
+    multi_df["visits_normalized"] = (multi_df["visits"] / multi_df["visits"].max()) * 100
 
     # ✅ UTILISATION DU COMPOSANT RÉUTILISABLE
     fig_multi = create_multi_line_chart(
         multi_df,
-        x_col='date',
-        y_cols=['sales_normalized', 'visits_normalized'],
+        x_col="date",
+        y_cols=["sales_normalized", "visits_normalized"],
         title="Évolution comparée (normalisée à 100)",
-        height=400
+        height=400,
     )
     st.plotly_chart(fig_multi, use_container_width=True)
 
@@ -226,7 +222,7 @@ def main():
     display_df = filtered_df if show_all else filtered_df.head(100)
 
     st.dataframe(
-        display_df[['date', 'sales', 'visits', 'conversion_rate', 'category']],
+        display_df[["date", "sales", "visits", "conversion_rate", "category"]],
         width="stretch",
         hide_index=True,
         column_config={
@@ -234,12 +230,10 @@ def main():
             "sales": st.column_config.NumberColumn("Ventes", format="€%.0f"),
             "visits": st.column_config.NumberColumn("Visites", format="%d"),
             "conversion_rate": st.column_config.NumberColumn(
-                "Taux conversion",
-                format="%.2f%%",
-                help="Taux de conversion visiteurs → ventes"
+                "Taux conversion", format="%.2f%%", help="Taux de conversion visiteurs → ventes"
             ),
-            "category": st.column_config.TextColumn("Catégorie")
-        }
+            "category": st.column_config.TextColumn("Catégorie"),
+        },
     )
 
     if not show_all:
@@ -260,7 +254,7 @@ def main():
             label=":material/description: Télécharger CSV",
             data=csv,
             file_name="dashboard_data.csv",
-            mime="text/csv"
+            mime="text/csv",
         )
 
     with col2:
@@ -270,7 +264,7 @@ def main():
             label=":material/analytics: Télécharger Stats",
             data=stats,
             file_name="dashboard_stats.csv",
-            mime="text/csv"
+            mime="text/csv",
         )
 
     # ========================================
@@ -303,6 +297,7 @@ def main():
 
     # Footer en fin de page
     render_footer()
+
 
 if __name__ == "__main__":
     main()

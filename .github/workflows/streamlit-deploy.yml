@@ -37,10 +37,10 @@ jobs:
           cd streamlit_app
           uv sync
 
-      # - name: Lint with ruff
-      #   run: |
-      #     cd streamlit_app
-      #     uv run ruff check src/
+      - name: Lint with ruff
+        run: |
+          cd streamlit_app
+          uv run ruff check src/
 
       - name: Check imports
         run: |

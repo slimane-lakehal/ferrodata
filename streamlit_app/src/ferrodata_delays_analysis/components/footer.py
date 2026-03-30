@@ -18,7 +18,9 @@ def render_footer():
         st.caption("🚄 **Ferrodata** | SNCF Analytics v1.0")
 
     with col2:
-        st.caption("💻 Built by **Slimane Lakehal** | Template by [Gaël Penessot](https://github.com/gpenessot)")
+        st.caption(
+            "💻 Built by **Slimane Lakehal** | Template by [Gaël Penessot](https://www.mes-formations-data.fr/streamlit-turbo)"
+        )
 
     with col3:
         st.caption(f"📅 Data updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}")

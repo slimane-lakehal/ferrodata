@@ -8,7 +8,7 @@ import plotly.express as px
 import streamlit as st
 
 from ferrodata_delays_analysis.components.footer import render_footer
-from ferrodata_delays_analysis.utils.database import query_data, MART_SCHEMA
+from ferrodata_delays_analysis.utils.database import MART_SCHEMA, query_data
 
 
 def main():
@@ -40,9 +40,9 @@ def main():
 
         selected_years = st.multiselect(
             "Select Years",
-            options=available_years['year'].tolist(),
-            default=[available_years['year'].iloc[0]],  # Default to most recent year
-            help="Choose which years to include in analysis"
+            options=available_years["year"].tolist(),
+            default=[available_years["year"].iloc[0]],  # Default to most recent year
+            help="Choose which years to include in analysis",
         )
 
         if not selected_years:
@@ -53,7 +53,7 @@ def main():
         route_filter = st.text_input(
             "Filter by Route (optional)",
             placeholder="e.g., PARIS",
-            help="Enter station name to filter routes"
+            help="Enter station name to filter routes",
         )
 
         st.markdown("---")
@@ -84,8 +84,8 @@ def main():
         st.stop()
 
     # Calculate totals
-    total_impact = delay_data['total_trains_impacted'].sum()
-    total_occurrences = delay_data['occurrences'].sum()
+    total_impact = delay_data["total_trains_impacted"].sum()
+    total_occurrences = delay_data["occurrences"].sum()
 
     # Overview metrics
     st.header("📊 Delay Impact Overview")
@@ -96,33 +96,24 @@ def main():
         st.metric(
             "Total Trains Impacted",
             f"{int(total_impact):,}",
-            help="Total estimated trains affected by delays"
+            help="Total estimated trains affected by delays",
         )
 
     with col2:
         st.metric(
             "Delay Records",
             f"{int(total_occurrences):,}",
-            help="Number of delay cause records analyzed"
+            help="Number of delay cause records analyzed",
         )
 
     with col3:
-        top_cause = delay_data.iloc[0]['delay_cause_category']
-        top_pct = (delay_data.iloc[0]['total_trains_impacted'] / total_impact * 100)
-        st.metric(
-            "Top Cause",
-            top_cause,
-            f"{top_pct:.1f}%",
-            help="Most frequent delay cause"
-        )
+        top_cause = delay_data.iloc[0]["delay_cause_category"]
+        top_pct = delay_data.iloc[0]["total_trains_impacted"] / total_impact * 100
+        st.metric("Top Cause", top_cause, f"{top_pct:.1f}%", help="Most frequent delay cause")
 
     with col4:
         years_str = ", ".join(map(str, sorted(selected_years)))
-        st.metric(
-            "Analysis Period",
-            years_str,
-            help="Years included in this analysis"
-        )
+        st.metric("Analysis Period", years_str, help="Years included in this analysis")
 
     st.markdown("---")
 
@@ -137,12 +128,12 @@ def main():
         # Sunburst chart
         fig = px.sunburst(
             delay_data,
-            path=['delay_cause_category'],
-            values='total_trains_impacted',
+            path=["delay_cause_category"],
+            values="total_trains_impacted",
             title="Delay Causes (sized by trains impacted)",
-            color='avg_cause_percentage',
-            color_continuous_scale='RdYlGn_r',
-            labels={'avg_cause_percentage': 'Avg %'}
+            color="avg_cause_percentage",
+            color_continuous_scale="RdYlGn_r",
+            labels={"avg_cause_percentage": "Avg %"},
         )
         fig.update_layout(height=500)
         st.plotly_chart(fig, use_container_width=True)
@@ -151,13 +142,15 @@ def main():
         st.subheader("Top Causes")
 
         # Calculate percentages
-        delay_data['impact_percentage'] = (delay_data['total_trains_impacted'] / total_impact * 100).round(2)
+        delay_data["impact_percentage"] = (
+            delay_data["total_trains_impacted"] / total_impact * 100
+        ).round(2)
 
         for idx, row in delay_data.iterrows():
             st.markdown(f"""
-            **{row['delay_cause_category']}**
-            - {row['impact_percentage']}% of delays
-            - {int(row['total_trains_impacted']):,} trains
+            **{row["delay_cause_category"]}**
+            - {row["impact_percentage"]}% of delays
+            - {int(row["total_trains_impacted"]):,} trains
             """)
 
     st.markdown("---")
@@ -172,20 +165,16 @@ def main():
 
         fig = px.bar(
             delay_data,
-            x='delay_cause_category',
-            y='total_trains_impacted',
-            color='delay_cause_category',
+            x="delay_cause_category",
+            y="total_trains_impacted",
+            color="delay_cause_category",
             labels={
-                'delay_cause_category': 'Cause Category',
-                'total_trains_impacted': 'Trains Impacted'
+                "delay_cause_category": "Cause Category",
+                "total_trains_impacted": "Trains Impacted",
             },
-            title="Total Impact by Category"
+            title="Total Impact by Category",
         )
-        fig.update_layout(
-            template="plotly_white",
-            showlegend=False,
-            xaxis_tickangle=-45
-        )
+        fig.update_layout(template="plotly_white", showlegend=False, xaxis_tickangle=-45)
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
@@ -193,20 +182,16 @@ def main():
 
         fig = px.bar(
             delay_data,
-            x='delay_cause_category',
-            y='avg_cause_percentage',
-            color='delay_cause_category',
+            x="delay_cause_category",
+            y="avg_cause_percentage",
+            color="delay_cause_category",
             labels={
-                'delay_cause_category': 'Cause Category',
-                'avg_cause_percentage': 'Avg Percentage (%)'
+                "delay_cause_category": "Cause Category",
+                "avg_cause_percentage": "Avg Percentage (%)",
             },
-            title="Average Attribution to Each Cause"
+            title="Average Attribution to Each Cause",
         )
-        fig.update_layout(
-            template="plotly_white",
-            showlegend=False,
-            xaxis_tickangle=-45
-        )
+        fig.update_layout(template="plotly_white", showlegend=False, xaxis_tickangle=-45)
         st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("---")
@@ -231,16 +216,16 @@ def main():
         if not trends_data.empty:
             fig = px.line(
                 trends_data,
-                x='year',
-                y='total_impact',
-                color='delay_cause_category',
+                x="year",
+                y="total_impact",
+                color="delay_cause_category",
                 markers=True,
                 labels={
-                    'year': 'Year',
-                    'total_impact': 'Trains Impacted',
-                    'delay_cause_category': 'Cause'
+                    "year": "Year",
+                    "total_impact": "Trains Impacted",
+                    "delay_cause_category": "Cause",
                 },
-                title="Delay Cause Trends Over Time"
+                title="Delay Cause Trends Over Time",
             )
             fig.update_layout(template="plotly_white")
             st.plotly_chart(fig, use_container_width=True)
@@ -269,15 +254,15 @@ def main():
         if not route_detail.empty:
             fig = px.bar(
                 route_detail,
-                x='route',
-                y='total_impact',
-                color='delay_cause_category',
+                x="route",
+                y="total_impact",
+                color="delay_cause_category",
                 labels={
-                    'route': 'Route',
-                    'total_impact': 'Trains Impacted',
-                    'delay_cause_category': 'Cause'
+                    "route": "Route",
+                    "total_impact": "Trains Impacted",
+                    "delay_cause_category": "Cause",
                 },
-                title=f"Top 20 Routes Affected by Delays (filtered by: {route_filter})"
+                title=f"Top 20 Routes Affected by Delays (filtered by: {route_filter})",
             )
             fig.update_layout(template="plotly_white", xaxis_tickangle=-45)
             st.plotly_chart(fig, use_container_width=True)
@@ -294,23 +279,17 @@ def main():
         column_config={
             "delay_cause_category": "Cause Category",
             "cause_description": "Description",
-            "occurrences": st.column_config.NumberColumn(
-                "Occurrences",
-                format="%d"
-            ),
+            "occurrences": st.column_config.NumberColumn("Occurrences", format="%d"),
             "total_trains_impacted": st.column_config.NumberColumn(
-                "Trains Impacted",
-                format="%.0f"
+                "Trains Impacted", format="%.0f"
             ),
             "avg_cause_percentage": st.column_config.NumberColumn(
-                "Avg Attribution",
-                format="%.2f%%"
+                "Avg Attribution", format="%.2f%%"
             ),
             "impact_percentage": st.column_config.NumberColumn(
-                "% of Total Impact",
-                format="%.2f%%"
+                "% of Total Impact", format="%.2f%%"
             ),
-        }
+        },
     )
 
     # Download option
@@ -319,7 +298,7 @@ def main():
         label="📥 Download Delay Analysis (CSV)",
         data=csv,
         file_name=f"sncf_delay_analysis_{'-'.join(map(str, selected_years))}.csv",
-        mime="text/csv"
+        mime="text/csv",
     )
 
     st.markdown("---")
@@ -330,9 +309,9 @@ def main():
     st.markdown(f"""
     Based on the analysis of **{int(total_impact):,} delayed trains** across selected periods:
 
-    1. **Primary Delay Cause:** {delay_data.iloc[0]['delay_cause_category']} accounts for {delay_data.iloc[0]['impact_percentage']:.1f}% of delays
-    2. **Description:** {delay_data.iloc[0]['cause_description']}
-    3. **Operational Focus:** The top 3 causes represent {delay_data.head(3)['impact_percentage'].sum():.1f}% of all delays
+    1. **Primary Delay Cause:** {delay_data.iloc[0]["delay_cause_category"]} accounts for {delay_data.iloc[0]["impact_percentage"]:.1f}% of delays
+    2. **Description:** {delay_data.iloc[0]["cause_description"]}
+    3. **Operational Focus:** The top 3 causes represent {delay_data.head(3)["impact_percentage"].sum():.1f}% of all delays
 
     **Recommendations:**
     - Focus operational improvements on the top 2-3 delay causes
