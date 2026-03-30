@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+from google.oauth2 import service_account
+from google.cloud import bigquery
 
 
 # ---------------------------------------------------------------------------
@@ -21,7 +23,7 @@ def _is_cloud() -> bool:
 # Schema where dbt mart tables live in each backend:
 #   DuckDB  → target schema "analytics" + custom "analytics" = "analytics_analytics"
 #   BigQuery → target dataset "sncf"    + custom "analytics" = "sncf_analytics"
-_MART_SCHEMA = "sncf_analytics" if _is_cloud() else "analytics_analytics"
+MART_SCHEMA = "sncf_analytics" if _is_cloud() else "analytics_analytics"
 
 
 # ---------------------------------------------------------------------------
@@ -29,6 +31,13 @@ _MART_SCHEMA = "sncf_analytics" if _is_cloud() else "analytics_analytics"
 # ---------------------------------------------------------------------------
 
 @st.cache_resource
+def _get_bq_client() -> bigquery.Client:
+    credentials = service_account.Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"]
+    )
+    return bigquery.Client(credentials=credentials)
+
+
 def _get_duckdb():
     import duckdb
 
@@ -43,27 +52,12 @@ def _get_duckdb():
         st.stop()
 
 
-def _get_bq():
-    return st.connection("bigquery", type="bigquery")
-
-
 # ---------------------------------------------------------------------------
 # Query execution
 # ---------------------------------------------------------------------------
 
 @st.cache_data(ttl=300)
-def query_data_cached(_conn, query: str) -> pd.DataFrame:
-    """Execute a SQL query against DuckDB and return a DataFrame."""
-    try:
-        return _conn.execute(query).df()
-    except Exception as e:
-        st.error(f"❌ Query failed: {e}")
-        with st.expander("🔍 View failed query"):
-            st.code(query, language="sql")
-        return pd.DataFrame()
-
-
-def query_data(query: str, ttl: int = 300) -> pd.DataFrame:
+def query_data(query: str) -> pd.DataFrame:
     """
     Execute a SQL query against the active backend and return a DataFrame.
 
@@ -72,15 +66,21 @@ def query_data(query: str, ttl: int = 300) -> pd.DataFrame:
     """
     if _is_cloud():
         try:
-            return _get_bq().query(query, ttl=ttl)
+            return _get_bq_client().query(query, location="EU").to_dataframe()
         except Exception as e:
             st.error(f"❌ BigQuery query failed: {e}")
             with st.expander("🔍 View failed query"):
                 st.code(query, language="sql")
             return pd.DataFrame()
     else:
-        conn = _get_duckdb()
-        return query_data_cached(conn, query)
+        try:
+            conn = _get_duckdb()
+            return conn.execute(query).df()
+        except Exception as e:
+            st.error(f"❌ Query failed: {e}")
+            with st.expander("🔍 View failed query"):
+                st.code(query, language="sql")
+            return pd.DataFrame()
 
 
 # ---------------------------------------------------------------------------
@@ -93,9 +93,9 @@ def get_available_date_range() -> tuple:
     SELECT
         MIN(date) as min_date,
         MAX(date) as max_date
-    FROM {_MART_SCHEMA}.fct_train_punctuality
+    FROM {MART_SCHEMA}.fct_train_punctuality
     """
-    result = query_data(query, ttl=3600)
+    result = query_data(query)
     if not result.empty:
         return (result["min_date"].iloc[0], result["max_date"].iloc[0])
     return (None, None)
@@ -105,10 +105,10 @@ def get_available_date_range() -> tuple:
 def get_service_types() -> list:
     query = f"""
     SELECT DISTINCT service_type
-    FROM {_MART_SCHEMA}.fct_train_punctuality
+    FROM {MART_SCHEMA}.fct_train_punctuality
     ORDER BY service_type
     """
-    result = query_data(query, ttl=3600)
+    result = query_data(query)
     if not result.empty:
         return result["service_type"].tolist()
     return []
@@ -127,23 +127,23 @@ def get_all_stations() -> pd.DataFrame:
         station_tier,
         has_passenger_service,
         total_trains_handled
-    FROM {_MART_SCHEMA}.dim_stations
+    FROM {MART_SCHEMA}.dim_stations
     WHERE has_passenger_service = true
         AND longitude IS NOT NULL
         AND latitude IS NOT NULL
     ORDER BY total_trains_handled DESC
     """
-    return query_data(query, ttl=3600)
+    return query_data(query)
 
 
 @st.cache_data(ttl=3600)
 def get_all_routes() -> list:
     query = f"""
     SELECT DISTINCT route
-    FROM {_MART_SCHEMA}.agg_route_performance
+    FROM {MART_SCHEMA}.agg_route_performance
     ORDER BY route
     """
-    result = query_data(query, ttl=3600)
+    result = query_data(query)
     if not result.empty:
         return result["route"].tolist()
     return []
@@ -152,8 +152,8 @@ def get_all_routes() -> list:
 def test_connection() -> bool:
     try:
         if _is_cloud():
-            result = _get_bq().query("SELECT 1 AS test", ttl=0)
-            return not result.empty
+            result = _get_bq_client().query("SELECT 1 AS test", location="EU").result()
+            return True
         else:
             conn = _get_duckdb()
             return conn.execute("SELECT 1 AS test").fetchone()[0] == 1

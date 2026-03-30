@@ -9,7 +9,7 @@ from datetime import datetime
 import streamlit as st
 
 from ferrodata_delays_analysis.components.footer import render_footer
-from ferrodata_delays_analysis.utils.database import query_data
+from ferrodata_delays_analysis.utils.database import query_data, MART_SCHEMA
 
 
 def main():
@@ -64,7 +64,7 @@ def main():
         ROUND(AVG(punctuality_rate), 2) as avg_punctuality,
         ROUND(AVG(cancellation_rate), 2) as avg_cancellation,
         COUNT(DISTINCT month_start_date) as months_analyzed
-    FROM analytics_analytics.agg_monthly_service_performance
+    FROM {MART_SCHEMA}.agg_monthly_service_performance
     WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
         AND service_type IN ({','.join([f"'{s}'" for s in service_types])})
     """
@@ -116,7 +116,7 @@ def main():
         punctuality_rate,
         cancellation_rate,
         total_operated_trains
-    FROM analytics_analytics.agg_monthly_service_performance
+    FROM {MART_SCHEMA}.agg_monthly_service_performance
     WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
         AND service_type IN ({','.join([f"'{s}'" for s in service_types])})
     ORDER BY month_start_date, service_type
@@ -158,7 +158,7 @@ def main():
         ROUND(AVG(punctuality_rate), 2) as avg_punctuality,
         ROUND(AVG(cancellation_rate), 2) as avg_cancellation,
         ROUND(AVG(delay_rate), 2) as avg_delay_rate
-    FROM analytics_analytics.agg_monthly_service_performance
+    FROM {MART_SCHEMA}.agg_monthly_service_performance
     WHERE month_start_date BETWEEN '{start_date}' AND '{end_date}'
         AND service_type IN ({','.join([f"'{s}'" for s in service_types])})
     GROUP BY service_type
@@ -200,13 +200,13 @@ def main():
 
     with col1:
         st.subheader("🏆 Best Performing Routes")
-        best_routes_query = """
+        best_routes_query = f"""
         SELECT
             route,
             service_type,
             ROUND(overall_punctuality_rate, 2) as punctuality_rate,
             total_trains_operated as trains
-        FROM analytics_analytics.agg_route_performance
+        FROM {MART_SCHEMA}.agg_route_performance
         WHERE total_trains_operated > 500
         ORDER BY overall_punctuality_rate DESC
         LIMIT 5
@@ -234,13 +234,13 @@ def main():
 
     with col2:
         st.subheader("⚠️ Routes Needing Attention")
-        worst_routes_query = """
+        worst_routes_query = f"""
         SELECT
             route,
             service_type,
             ROUND(overall_punctuality_rate, 2) as punctuality_rate,
             total_trains_operated as trains
-        FROM analytics_analytics.agg_route_performance
+        FROM {MART_SCHEMA}.agg_route_performance
         WHERE total_trains_operated > 500
         ORDER BY overall_punctuality_rate ASC
         LIMIT 5

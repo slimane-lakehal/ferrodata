@@ -9,7 +9,7 @@ import pydeck as pdk
 import streamlit as st
 
 from ferrodata_delays_analysis.components.footer import render_footer
-from ferrodata_delays_analysis.utils.database import query_data
+from ferrodata_delays_analysis.utils.database import query_data, MART_SCHEMA
 
 
 def main():
@@ -70,7 +70,7 @@ def main():
         total_trains_handled,
         has_passenger_service,
         has_freight_service
-    FROM analytics_analytics.dim_stations
+    FROM {MART_SCHEMA}.dim_stations
     WHERE longitude IS NOT NULL
         AND latitude IS NOT NULL
         AND station_tier IN ({','.join([f"'{t}'" for t in selected_tiers])})

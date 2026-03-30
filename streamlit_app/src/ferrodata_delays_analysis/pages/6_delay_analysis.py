@@ -8,7 +8,7 @@ import plotly.express as px
 import streamlit as st
 
 from ferrodata_delays_analysis.components.footer import render_footer
-from ferrodata_delays_analysis.utils.database import query_data
+from ferrodata_delays_analysis.utils.database import query_data, MART_SCHEMA
 
 
 def main():
@@ -27,9 +27,9 @@ def main():
         st.header("🔍 Analysis Filters")
 
         # Date range
-        year_query = """
+        year_query = f"""
         SELECT DISTINCT year
-        FROM analytics_analytics.fct_tgv_delays_by_cause
+        FROM {MART_SCHEMA}.fct_tgv_delays_by_cause
         ORDER BY year DESC
         """
         available_years = query_data(year_query)
@@ -71,7 +71,7 @@ def main():
         SUM(estimated_trains_delayed_by_cause) as total_trains_impacted,
         AVG(cause_percentage) as avg_cause_percentage,
         SUM(total_delayed_trains) as total_delayed_trains
-    FROM analytics_analytics.fct_tgv_delays_by_cause
+    FROM {MART_SCHEMA}.fct_tgv_delays_by_cause
     WHERE {where_clause}
     GROUP BY delay_cause_category, cause_description
     ORDER BY total_trains_impacted DESC
@@ -220,7 +220,7 @@ def main():
             year,
             delay_cause_category,
             SUM(estimated_trains_delayed_by_cause) as total_impact
-        FROM analytics_analytics.fct_tgv_delays_by_cause
+        FROM {MART_SCHEMA}.fct_tgv_delays_by_cause
         WHERE {where_clause}
         GROUP BY year, delay_cause_category
         ORDER BY year, total_impact DESC
@@ -257,7 +257,7 @@ def main():
             delay_cause_category,
             SUM(estimated_trains_delayed_by_cause) as total_impact,
             AVG(cause_percentage) as avg_percentage
-        FROM analytics_analytics.fct_tgv_delays_by_cause
+        FROM {MART_SCHEMA}.fct_tgv_delays_by_cause
         WHERE {where_clause}
         GROUP BY route, delay_cause_category
         ORDER BY total_impact DESC

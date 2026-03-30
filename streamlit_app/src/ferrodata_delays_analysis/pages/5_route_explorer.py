@@ -9,7 +9,7 @@ import plotly.express as px
 import streamlit as st
 
 from ferrodata_delays_analysis.components.footer import render_footer
-from ferrodata_delays_analysis.utils.database import get_all_routes, query_data
+from ferrodata_delays_analysis.utils.database import get_all_routes, query_data, MART_SCHEMA
 
 
 def main():
@@ -76,7 +76,7 @@ def main():
         first_observation_date,
         last_observation_date,
         days_observed
-    FROM analytics_analytics.agg_route_performance
+    FROM {MART_SCHEMA}.agg_route_performance
     WHERE route IN ({','.join([f"'{r}'" for r in selected_routes])})
         AND service_type IN ({','.join([f"'{s}'" for s in service_filter])})
     ORDER BY overall_punctuality_rate DESC
@@ -209,7 +209,7 @@ def main():
             planned_trains,
             operated_trains,
             delayed_arrivals
-        FROM analytics_analytics.fct_train_punctuality
+        FROM {MART_SCHEMA}.fct_train_punctuality
         WHERE route = '{route}'
         ORDER BY date
         """
