@@ -4,6 +4,9 @@ maxUploadSize = 200
 enableXsrfProtection = true
 enableStaticServing = true
 
+[ui]
+hideTopBar = true
+
 [browser]
 gatherUsageStats = false
 
