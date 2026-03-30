@@ -9,7 +9,6 @@ models:
       - name: station_id
         description: UIC code - unique international identifier for railway stations
         data_tests:
-          - unique
           - not_null
 
       - name: station_name

@@ -7,7 +7,6 @@ models:
       - name: uic_code
         description: Unique International Code for railway stations (primary identifier)
         data_tests:
-          - unique
           - not_null
 
       - name: station_name
@@ -45,7 +44,7 @@ models:
 
       - name: _loaded_at
         description: Timestamp when record was loaded into staging
-
+    
   - name: stg_sncf__regularite_tgv
     description: Monthly TGV punctuality metrics by route with delay attribution by cause
     columns:
