@@ -40,7 +40,7 @@ jobs:
       - name: Check imports
         run: |
           cd streamlit_app
-          uv run python -c "import sys; sys.path.insert(0, 'src'); from ferrodata_delays_analysis.utils.database import query_data"
+          uv run python -c "import sys; sys.path.insert(0, 'src'); from ferrodata_delays_analysis.utils.database import test_connection"
 
       - name: Validate Streamlit app structure
         run: |
