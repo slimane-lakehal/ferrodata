@@ -606,6 +606,7 @@ version = "1.0.0"
 source = { editable = "streamlit_app" }
 dependencies = [
     { name = "duckdb" },
+    { name = "google-auth" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "plotly" },
@@ -624,6 +625,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "duckdb", specifier = ">=1.0.0" },
+    { name = "google-auth", specifier = ">=2.49.1" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "numpy", specifier = ">=1.24.0" },
     { name = "pandas", specifier = ">=2.0.0" },

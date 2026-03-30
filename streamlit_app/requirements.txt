@@ -19,3 +19,4 @@ pydeck>=0.8.1
 
 # Utilities
 python-dotenv>=1.0.0
+google-auth>=2.49.1
