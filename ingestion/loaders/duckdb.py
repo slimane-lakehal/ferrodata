@@ -6,8 +6,8 @@ from typing import Optional
 import pandas as pd
 import time
 import logging
-from ingestion.config import SourceConfig
-from ingestion.models import LoadResult
+from config import SourceConfig
+from models import LoadResult
 
 logger = logging.getLogger(__name__)
 

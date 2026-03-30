@@ -5,8 +5,8 @@ import logging
 from typing import Optional
 from google.cloud import bigquery
 import pandas as pd
-from ingestion.models import LoadResult
-from ingestion.config import SourceConfig
+from models import LoadResult
+from config import SourceConfig
 
 logger = logging.getLogger(__name__)
 

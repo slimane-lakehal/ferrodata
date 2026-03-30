@@ -4,7 +4,7 @@ import time
 import logging
 from pathlib import Path
 import pandas as pd
-from ingestion.models import LoadResult
+from models import LoadResult
 
 logger = logging.getLogger(__name__)
 

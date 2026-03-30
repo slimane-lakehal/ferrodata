@@ -14,17 +14,6 @@ dependencies = [
     "google-cloud-bigquery>=3.40.1",
 ]
 
-[tool.uv.sources]
-ferrodata-ingestion = { workspace = true }
-ferrodata-app = { workspace = true }
-ferrodata_delays_analysis = { workspace = true }
-
-# Workspace configuration
-[tool.uv.workspace]
-members = [
-    "ingestion",
-    "streamlit_app"
-]
 
 [tool.ruff]
 line-length = 100

@@ -4,10 +4,10 @@ import time
 import logging
 from typing import List, Optional
 import pandas as pd
-from ingestion.models import FetchResult, LoadResult, PipelineResult
-from ingestion.config import SourceConfig
-from ingestion.fetchers.base import DataFetcher
-from ingestion.loaders.base import DataLoader
+from models import FetchResult, LoadResult, PipelineResult
+from config import SourceConfig
+from fetchers.base import DataFetcher
+from loaders.base import DataLoader
 
 logger = logging.getLogger(__name__)
 

@@ -21,17 +21,6 @@ dependencies = [
 ]
 
 
-[project.scripts]
-# CLI entrypoint
-ferrodata-ingest = "ingestion.main:main"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["ingestion"]
-sources = {"ingestion" = "."}
 
 [tool.ruff]
 line-length = 100
