@@ -60,7 +60,7 @@ jobs:
         run: uv sync
 
       - name: Write GCP credentials
-        run: echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp_credentials.json
+        run: echo '${{ secrets.GCP_SERVICE_ACCOUNT }}' > /tmp/gcp_credentials.json
 
       - name: Create dbt profiles
         run: |
