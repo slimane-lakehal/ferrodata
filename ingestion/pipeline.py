@@ -1,13 +1,15 @@
 """Pipeline orchestration for fetch and load operations."""
 
-import time
 import logging
-from typing import List, Optional
+import time
+from typing import List
+
 import pandas as pd
-from models import FetchResult, LoadResult, PipelineResult
+
 from config import SourceConfig
 from fetchers.base import DataFetcher
 from loaders.base import DataLoader
+from models import FetchResult, LoadResult, PipelineResult
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +55,7 @@ class FetchPipeline:
         if not fetch_result.success:
             logger.error(f"Fetch failed for {source_config.name}: {fetch_result.error}")
             return PipelineResult(
-                source_name=source_config.name,
-                fetch_result=fetch_result,
-                load_results=[]
+                source_name=source_config.name, fetch_result=fetch_result, load_results=[]
             )
 
         # Step 2: Load to all destinations
@@ -63,9 +63,7 @@ class FetchPipeline:
 
         # Step 3: Build final result
         result = PipelineResult(
-            source_name=source_config.name,
-            fetch_result=fetch_result,
-            load_results=load_results
+            source_name=source_config.name, fetch_result=fetch_result, load_results=load_results
         )
 
         # Log summary
@@ -96,7 +94,7 @@ class FetchPipeline:
             data = self.fetcher.fetch(
                 dataset_id=source_config.api_dataset_id,
                 format=source_config.api_format,
-                params=source_config.api_params
+                params=source_config.api_params,
             )
 
             # Basic validation
@@ -113,7 +111,7 @@ class FetchPipeline:
                 metadata={
                     "columns": list(data.columns),
                     "dataset_id": source_config.api_dataset_id,
-                }
+                },
             ), data
 
         except Exception as e:
@@ -124,7 +122,7 @@ class FetchPipeline:
                 source_name=source_config.name,
                 rows_fetched=0,
                 duration_seconds=time.time() - start_time,
-                error=str(e)
+                error=str(e),
             ), None
 
     def _load_data(self, data: pd.DataFrame, source_config: SourceConfig) -> list[LoadResult]:
@@ -144,7 +142,7 @@ class FetchPipeline:
             logger.info(f"Loading to {loader.__class__.__name__}")
 
             # Check if loader supports source_config parameter
-            if hasattr(loader, 'load') and 'source_config' in loader.load.__code__.co_varnames:
+            if hasattr(loader, "load") and "source_config" in loader.load.__code__.co_varnames:
                 # BigQueryLoader - pass source_config for advanced settings
                 result = loader.load(data, source_config.name, source_config=source_config)
             else:
@@ -202,9 +200,15 @@ class FetchPipeline:
         # Per-source details
         logger.info("\nDetails:")
         for result in results:
-            status = "SUCCESS" if result.fully_successful else ("PARTIAL" if result.success else "FAILED")
-            logger.info(f"  {status}: {result.source_name} - "
-                       f"{result.fetch_result.rows_fetched} rows, "
-                       f"{result.total_duration:.2f}s")
+            status = (
+                "SUCCESS"
+                if result.fully_successful
+                else ("PARTIAL" if result.success else "FAILED")
+            )
+            logger.info(
+                f"  {status}: {result.source_name} - "
+                f"{result.fetch_result.rows_fetched} rows, "
+                f"{result.total_duration:.2f}s"
+            )
 
         logger.info("=" * 60)

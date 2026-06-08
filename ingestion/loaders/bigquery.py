@@ -1,12 +1,14 @@
 """BigQuery loader with configuration-driven job settings."""
 
-import time
 import logging
+import time
 from typing import Optional
-from google.cloud import bigquery
+
 import pandas as pd
-from models import LoadResult
+from google.cloud import bigquery
+
 from config import SourceConfig
+from models import LoadResult
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,9 @@ class BigQueryLoader:
         self.location = location
         self.client = bigquery.Client(project=project_id)
 
-    def load(self, data: pd.DataFrame, source_name: str, source_config: Optional[SourceConfig] = None) -> LoadResult:
+    def load(
+        self, data: pd.DataFrame, source_name: str, source_config: Optional[SourceConfig] = None
+    ) -> LoadResult:
         """
         Load data to BigQuery table.
 
@@ -72,7 +76,7 @@ class BigQueryLoader:
                     "table_id": table_id,
                     "job_id": job.job_id,
                     "location": self.location,
-                }
+                },
             )
 
         except Exception as e:
@@ -84,7 +88,7 @@ class BigQueryLoader:
                 source_name=source_name,
                 rows_loaded=0,
                 duration_seconds=time.time() - start_time,
-                error=str(e)
+                error=str(e),
             )
 
     def _build_job_config(self, source_config: Optional[SourceConfig]) -> bigquery.LoadJobConfig:
@@ -155,7 +159,9 @@ class BigQueryLoader:
                 "num_bytes": table.num_bytes,
                 "created": table.created,
                 "modified": table.modified,
-                "schema": [{"name": field.name, "type": field.field_type} for field in table.schema],
+                "schema": [
+                    {"name": field.name, "type": field.field_type} for field in table.schema
+                ],
             }
         except Exception as e:
             logger.warning(f"Could not get table info for {table_id}: {e}")

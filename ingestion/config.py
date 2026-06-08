@@ -3,30 +3,30 @@
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, List
-
+from typing import Dict, List, Optional
 
 # ============= Source Definitions =============
+
 
 @dataclass
 class SourceConfig:
     """Configuration for a data source."""
 
-    name: str                          # Internal name: "regularite_tgv"
-    api_dataset_id: str                # API identifier: "regularite-mensuelle-tgv-aqst"
+    name: str  # Internal name: "regularite_tgv"
+    api_dataset_id: str  # API identifier: "regularite-mensuelle-tgv-aqst"
     description: str
 
     api_format: str = "parquet"
     api_params: Dict = field(default_factory=lambda: {"limit": -1, "timezone": "UTC"})
 
-    table_name: str = None
+    table_name: str = ""
     write_disposition: str = "WRITE_TRUNCATE"
     partition_field: Optional[str] = None
     clustering_fields: Optional[List[str]] = None
 
     def __post_init__(self):
         """Set defaults after initialization."""
-        if self.table_name is None:
+        if not self.table_name:
             self.table_name = self.name
 
 
@@ -60,9 +60,11 @@ SOURCES_MAP: Dict[str, SourceConfig] = {s.name: s for s in SOURCES}
 
 # ============= Application Configuration =============
 
+
 @dataclass
 class AppConfig:
     """Runtime configuration for the application."""
+
     # API settings
     sncf_base_url: str
 
@@ -80,7 +82,7 @@ class AppConfig:
     bq_enabled: bool
 
     @classmethod
-    def from_env(cls, env: Optional[str] = None) -> 'AppConfig':
+    def from_env(cls, env: Optional[str] = None) -> "AppConfig":
         """
         Load configuration based on environment.
 
@@ -115,7 +117,6 @@ class AppConfig:
             )
         else:
             raise ValueError(f"Unknown environment: {env}. Use 'dev' or 'prod'.")
-
 
 
 DATASETS = {s.name: s.api_dataset_id for s in SOURCES}

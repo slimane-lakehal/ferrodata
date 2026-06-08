@@ -9,9 +9,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from config import SOURCES, SOURCES_MAP, AppConfig
 from fetchers.sncf import SNCFFetcher
-from loaders.local import LocalParquetLoader
-from loaders.duckdb import DuckDBLoader
 from loaders.bigquery import BigQueryLoader
+from loaders.duckdb import DuckDBLoader
+from loaders.local import LocalParquetLoader
 from pipeline import FetchPipeline
 
 
@@ -21,8 +21,8 @@ def setup_logging(verbose: bool = False) -> None:
 
     logging.basicConfig(
         level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
 
@@ -49,22 +49,14 @@ def build_pipeline(app_config: AppConfig) -> FetchPipeline:
         if not app_config.duckdb_path:
             raise ValueError("DuckDB enabled but duckdb_path not set")
 
-        loaders.append(
-            DuckDBLoader(
-                db_path=app_config.duckdb_path,
-                schema="raw_sncf"
-            )
-        )
+        loaders.append(DuckDBLoader(db_path=app_config.duckdb_path, schema="raw_sncf"))
 
     if app_config.bq_enabled:
         if not app_config.bq_project_id:
             raise ValueError("BigQuery enabled but GCP_PROJECT_ID not set")
 
         loaders.append(
-            BigQueryLoader(
-                project_id=app_config.bq_project_id,
-                dataset=app_config.bq_dataset
-            )
+            BigQueryLoader(project_id=app_config.bq_project_id, dataset=app_config.bq_dataset)
         )
 
     if not loaders:
@@ -80,47 +72,34 @@ def main() -> int:
     )
 
     parser.add_argument(
-        "--env",
-        choices=["dev", "prod"],
-        default="dev",
-        help="Environment (default: dev)"
+        "--env", choices=["dev", "prod"], default="dev", help="Environment (default: dev)"
     )
 
     parser.add_argument(
         "--sources",
         nargs="+",
-        help="Specific sources to fetch (e.g., regularite_tgv gares). If not specified, fetches all."
+        help="""Specific sources to fetch (e.g., regularite_tgv gares).
+                If not specified, fetches all.""",
     )
 
-    parser.add_argument(
-        "--list",
-        action="store_true",
-        help="List all available sources and exit"
-    )
+    parser.add_argument("--list", action="store_true", help="List all available sources and exit")
+
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose logging")
 
     parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-
-    parser.add_argument(
-        "--local-only",
-        action="store_true",
-        help="Only save to local files (disable BigQuery)"
+        "--local-only", action="store_true", help="Only save to local files (disable BigQuery)"
     )
 
     parser.add_argument(
         "--bq-only",
         action="store_true",
-        help="Only load to BigQuery (disable local files and DuckDB)"
+        help="Only load to BigQuery (disable local files and DuckDB)",
     )
 
     parser.add_argument(
         "--duckdb-only",
         action="store_true",
-        help="Only load to DuckDB (disable local files and BigQuery)"
+        help="Only load to DuckDB (disable local files and BigQuery)",
     )
 
     args = parser.parse_args()

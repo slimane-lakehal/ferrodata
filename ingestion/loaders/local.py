@@ -1,9 +1,11 @@
 """Local parquet file loader."""
 
-import time
 import logging
+import time
 from pathlib import Path
+
 import pandas as pd
+
 from models import LoadResult
 
 logger = logging.getLogger(__name__)
@@ -50,7 +52,7 @@ class LocalParquetLoader:
                 metadata={
                     "file_path": str(file_path),
                     "file_size_bytes": file_path.stat().st_size,
-                }
+                },
             )
 
         except Exception as e:
@@ -62,7 +64,7 @@ class LocalParquetLoader:
                 source_name=source_name,
                 rows_loaded=0,
                 duration_seconds=time.time() - start_time,
-                error=str(e)
+                error=str(e),
             )
 
     def exists(self, source_name: str) -> bool:

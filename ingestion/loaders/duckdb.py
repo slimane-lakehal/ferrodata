@@ -1,11 +1,13 @@
 """DuckDB loader for local development."""
 
-import duckdb
+import logging
+import time
 from pathlib import Path
 from typing import Optional
+
+import duckdb
 import pandas as pd
-import time
-import logging
+
 from config import SourceConfig
 from models import LoadResult
 
@@ -36,9 +38,10 @@ class DuckDBLoader:
         self.conn.execute(f"CREATE SCHEMA IF NOT EXISTS {self.schema}")
 
         logger.info(f"Connected to DuckDB at {self.db_path}")
-    
-    def load(self, data: pd.DataFrame, source_name: str,
-             source_config: Optional[SourceConfig] = None) -> LoadResult:
+
+    def load(
+        self, data: pd.DataFrame, source_name: str, source_config: Optional[SourceConfig] = None
+    ) -> LoadResult:
         """
         Load data to DuckDB table.
 
@@ -94,7 +97,7 @@ class DuckDBLoader:
                     "table": table_name,
                     "full_table": full_table,
                     "total_rows": rows_in_table,
-                }
+                },
             )
 
         except Exception as e:
@@ -106,7 +109,7 @@ class DuckDBLoader:
                 source_name=source_name,
                 rows_loaded=0,
                 duration_seconds=time.time() - start_time,
-                error=str(e)
+                error=str(e),
             )
 
     def _table_exists(self, table_name: str) -> bool:
@@ -175,7 +178,7 @@ class DuckDBLoader:
 
     def close(self):
         """Close the DuckDB connection."""
-        if hasattr(self, 'conn'):
+        if hasattr(self, "conn"):
             self.conn.close()
             logger.info("Closed DuckDB connection")
 

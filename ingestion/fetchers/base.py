@@ -1,6 +1,7 @@
 """Base protocol for data fetchers."""
 
 from typing import Protocol
+
 import pandas as pd
 
 
@@ -21,4 +22,3 @@ class DataFetcher(Protocol):
             requests.HTTPError: If API request fails
         """
         ...
-    

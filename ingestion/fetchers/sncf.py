@@ -2,9 +2,10 @@
 
 import io
 import time
-import requests
-import pandas as pd
 from typing import Dict
+
+import pandas as pd
+import requests
 
 
 class SNCFFetcher:
@@ -50,7 +51,9 @@ class SNCFFetcher:
 
         return df
 
-    def fetch_with_metadata(self, dataset_id: str, format: str = "parquet", params: Dict = None) -> tuple[pd.DataFrame, dict]:
+    def fetch_with_metadata(
+        self, dataset_id: str, format: str = "parquet", params: Dict = None
+    ) -> tuple[pd.DataFrame, dict]:
         """
         Fetch dataset and return data with metadata.
 

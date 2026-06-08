@@ -2,12 +2,13 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
 
 @dataclass
 class LoadResult:
     """Result of a load operation to a destination."""
+
     success: bool
     destination: str  # "local", "duckdb" or "bigquery"
     source_name: str
@@ -21,6 +22,7 @@ class LoadResult:
 @dataclass
 class FetchResult:
     """Result of a fetch operation from an API."""
+
     success: bool
     source_name: str
     rows_fetched: int
@@ -33,6 +35,7 @@ class FetchResult:
 @dataclass
 class PipelineResult:
     """Result of a complete pipeline run (fetch + load)."""
+
     source_name: str
     fetch_result: FetchResult
     load_results: List[LoadResult]

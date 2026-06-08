@@ -1,7 +1,9 @@
 """Base protocol for data loaders."""
 
 from typing import Protocol
+
 import pandas as pd
+
 from models import LoadResult
 
 
