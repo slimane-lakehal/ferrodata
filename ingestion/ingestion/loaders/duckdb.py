@@ -8,8 +8,8 @@ from typing import Optional
 import duckdb
 import pandas as pd
 
-from config import SourceConfig
-from models import LoadResult
+from ..config import SourceConfig
+from ..models import LoadResult
 
 logger = logging.getLogger(__name__)
 

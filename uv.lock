@@ -17,7 +17,7 @@ resolution-markers = [
 members = [
     "ferrodata",
     "ferrodata-api",
-    "test-uv",
+    "ferrodata-ingestion",
 ]
 
 [[package]]
@@ -743,11 +743,38 @@ name = "ferrodata-api"
 version = "0.1.0"
 source = { virtual = "ferrodata_api" }
 dependencies = [
+    { name = "duckdb" },
     { name = "fastapi", extra = ["standard"] },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "fastapi", extras = ["standard"], specifier = ">=0.135.3" }]
+requires-dist = [
+    { name = "duckdb", specifier = ">=1.0.0" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.135.3" },
+]
+
+[[package]]
+name = "ferrodata-ingestion"
+version = "0.1.0"
+source = { editable = "ingestion" }
+dependencies = [
+    { name = "duckdb" },
+    { name = "google-cloud-bigquery" },
+    { name = "pandas" },
+    { name = "pyarrow" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "duckdb", specifier = ">=1.0.0" },
+    { name = "google-cloud-bigquery", specifier = ">=3.40.0" },
+    { name = "pandas", specifier = ">=2.1.0" },
+    { name = "pyarrow", specifier = ">=14.0.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "requests", specifier = ">=2.31.0" },
+]
 
 [[package]]
 name = "google-api-core"
@@ -2263,17 +2290,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/47/c6/ee486fd809e357697
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d7/c1/eb8f9debc45d3b7918a32ab756658a0904732f75e555402972246b0b8e71/tenacity-9.1.4-py3-none-any.whl", hash = "sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55", size = 28926, upload-time = "2026-02-07T10:45:32.24Z" },
 ]
-
-[[package]]
-name = "test-uv"
-version = "0.1.0"
-source = { virtual = "test_uv" }
-dependencies = [
-    { name = "pandas" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pandas", specifier = ">=2.3.3" }]
 
 [[package]]
 name = "text-unidecode"

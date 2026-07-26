@@ -7,8 +7,8 @@ from typing import Optional
 import pandas as pd
 from google.cloud import bigquery
 
-from config import SourceConfig
-from models import LoadResult
+from ..config import SourceConfig
+from ..models import LoadResult
 
 logger = logging.getLogger(__name__)
 

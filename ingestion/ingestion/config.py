@@ -96,9 +96,9 @@ class AppConfig:
         if env == "dev":
             return cls(
                 sncf_base_url="https://ressources.data.sncf.com/api/explore/v2.1/catalog/datasets",
-                local_data_dir=Path(__file__).parent.parent / "data",
+                local_data_dir=Path(__file__).parent.parent.parent / "data",
                 local_enabled=True,  # Keep parquet files as backup
-                duckdb_path=Path(__file__).parent.parent / "ferrodata.duckdb",
+                duckdb_path=Path(__file__).parent.parent.parent / "ferrodata.duckdb",
                 duckdb_enabled=True,  # Main dev target for SQL queries
                 bq_project_id=os.getenv("GCP_PROJECT_ID"),
                 bq_dataset=os.getenv("BQ_DATASET", "raw_sncf"),

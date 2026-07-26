@@ -38,8 +38,5 @@ python_functions = ["test_*"]
 [tool.uv.workspace]
 members = [
     "ferrodata_api",
-    "test_uv",
+    "ingestion"
 ]
-
-[tool.fastapi]
-entrypoint = "ferrodata_api.main:app"

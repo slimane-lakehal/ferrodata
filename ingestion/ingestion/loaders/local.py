@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from models import LoadResult
+from ..models import LoadResult
 
 logger = logging.getLogger(__name__)
 

@@ -6,10 +6,10 @@ from typing import List
 
 import pandas as pd
 
-from config import SourceConfig
-from fetchers.base import DataFetcher
-from loaders.base import DataLoader
-from models import FetchResult, LoadResult, PipelineResult
+from .config import SourceConfig
+from .fetchers.base import DataFetcher
+from .loaders.base import DataLoader
+from .models import FetchResult, LoadResult, PipelineResult
 
 logger = logging.getLogger(__name__)
 

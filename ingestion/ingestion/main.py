@@ -3,16 +3,13 @@
 import argparse
 import logging
 import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from config import SOURCES, SOURCES_MAP, AppConfig
-from fetchers.sncf import SNCFFetcher
-from loaders.bigquery import BigQueryLoader
-from loaders.duckdb import DuckDBLoader
-from loaders.local import LocalParquetLoader
-from pipeline import FetchPipeline
+from .config import SOURCES, SOURCES_MAP, AppConfig
+from .fetchers.sncf import SNCFFetcher
+from .loaders.bigquery import BigQueryLoader
+from .loaders.duckdb import DuckDBLoader
+from .loaders.local import LocalParquetLoader
+from .pipeline import FetchPipeline
 
 
 def setup_logging(verbose: bool = False) -> None:

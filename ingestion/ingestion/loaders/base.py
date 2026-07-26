@@ -4,7 +4,7 @@ from typing import Protocol
 
 import pandas as pd
 
-from models import LoadResult
+from ..models import LoadResult
 
 
 class DataLoader(Protocol):
