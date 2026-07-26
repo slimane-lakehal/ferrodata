@@ -85,7 +85,7 @@ This creates `ferrodata.duckdb` with raw data in the `raw_sncf` schema.
 Run dbt models to build staging and analytics tables:
 
 ```bash
-cd ferrodata
+cd ferrodata_dbt
 
 # Run all models
 dbt run
