@@ -82,6 +82,15 @@ station_classification as (
             else 'Inactive/Freight Only'
         end as station_tier
     from station_usage
+),
+
+accessibility as (
+    select
+        uic_code,
+        count(distinct accessibility_equipment) as accessibility_equipment_count,
+        list(distinct accessibility_equipment) as accessibility_equipment_list
+    from {{ ref('stg_sncf__accessibilite_gares') }}
+    group by 1
 )
 
 select
@@ -107,6 +116,11 @@ select
     coalesce(sc.total_trains_handled, 0) as total_trains_handled,
     coalesce(sc.station_tier, 'Inactive/Freight Only') as station_tier,
 
+    -- Accessibility metadata (partial coverage, source is incrementally maintained)
+    a.accessibility_equipment_count is not null as has_accessibility_data,
+    coalesce(a.accessibility_equipment_count, 0) as accessibility_equipment_count,
+    a.accessibility_equipment_list,
+
     -- Metadata
     s._loaded_at as source_loaded_at,
     current_timestamp as _dbt_loaded_at
@@ -114,3 +128,5 @@ select
 from stations s
 left join station_classification sc
     on s.station_name = sc.station_name
+left join accessibility a
+    on s.uic_code = a.uic_code

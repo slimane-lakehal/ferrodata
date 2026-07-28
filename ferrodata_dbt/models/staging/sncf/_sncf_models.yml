@@ -210,3 +210,48 @@ models:
 
       - name: _loaded_at
         description: Timestamp when record was loaded into staging
+
+  - name: stg_sncf__regularite_tgv_nationale
+    description: Semi-annual national TGV punctuality indicator (network-wide, not by route)
+    columns:
+      - name: date
+        description: Month of measurement (first day of month)
+        data_tests:
+          - not_null
+
+      - name: composite_regularity_rate
+        description: Composite on-time performance percentage, accounting for varying journey durations
+
+      - name: departure_punctuality_rate
+        description: Percentage of trains departing with less than 1 minute delay
+
+      - name: _loaded_at
+        description: Timestamp when record was loaded into staging
+
+  - name: stg_sncf__accessibilite_gares
+    description: >
+      Accessibility equipment per station (one row per station/equipment pair). Coverage is partial
+      since the source list is maintained incrementally by Gares & Connexions.
+    columns:
+      - name: uic_code
+        description: Unique International Code for the station (joins to stg_sncf__gares.uic_code)
+        data_tests:
+          - not_null
+
+      - name: station_name
+        description: Station name normalized to lowercase with spaces
+
+      - name: address
+        description: Street address
+
+      - name: postal_code
+        description: Postal code
+
+      - name: city
+        description: City/town
+
+      - name: accessibility_equipment
+        description: Accessibility feature or equipment available at the station (e.g. elevator, tactile paving, staff assistance)
+
+      - name: _loaded_at
+        description: Timestamp when record was loaded into staging

@@ -55,6 +55,17 @@ models:
           Station classification based on train volume:
           Major Hub (≥50k trains), Regional Hub (≥10k), Medium (≥1k), Small (>0), Inactive/Freight Only (0)
 
+      - name: has_accessibility_data
+        description: >
+          Whether this station appears in the accessibility equipment source. False does not mean
+          "no equipment" - the source list is incomplete and updated incrementally.
+
+      - name: accessibility_equipment_count
+        description: Number of distinct accessibility features recorded for this station (0 if not covered by the source)
+
+      - name: accessibility_equipment_list
+        description: Semicolon-separated list of accessibility features recorded for this station (null if not covered)
+
       - name: source_loaded_at
         description: When raw station data was loaded
 
@@ -259,6 +270,17 @@ models:
 
       - name: severe_delay_rate_30min
         description: Percentage of trains delayed over 30 min (TGV only)
+
+      - name: national_composite_regularity_rate
+        description: >
+          Official SNCF network-wide TGV composite regularity indicator for this month (TGV rows only, null
+          otherwise). Semi-annual source, so most months within a half-year share the same value. Useful as
+          a benchmark against the route-level punctuality_rate computed above.
+
+      - name: national_departure_punctuality_rate
+        description: >
+          Official SNCF network-wide TGV departure punctuality indicator for this month (TGV rows only, null
+          otherwise). Same source and cadence as national_composite_regularity_rate.
 
       - name: _dbt_loaded_at
         description: When this aggregate was built by dbt

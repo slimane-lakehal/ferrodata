@@ -185,3 +185,38 @@ sources:
 
           - name: y_wgs84
             description: Latitude coordinate in WGS84 decimal degrees
+
+      - name: regularite_tgv_nationale
+        description: Semi-annual national TGV punctuality indicator (network-wide, not by route) since 2015
+        columns:
+          - name: date
+            description: Measurement date (first day of month)
+
+          - name: regularite_composite
+            description: Composite on-time performance percentage, accounting for varying journey durations
+
+          - name: ponctualite_origine
+            description: Departure punctuality percentage (trains departing with less than 1 minute delay)
+
+      - name: equipements_accessibilite_gares
+        description: >
+          Accessibility equipment recorded per station (one row per station/equipment pair).
+          Incrementally maintained by Gares & Connexions; coverage is partial, not exhaustive.
+        columns:
+          - name: uic
+            description: Unique International Code (UIC) identifier for the station
+
+          - name: nom_de_la_gare
+            description: Station name
+
+          - name: adresse
+            description: Street address
+
+          - name: codepostal
+            description: Postal code
+
+          - name: ville
+            description: City/town
+
+          - name: accessibilite
+            description: Accessibility feature or equipment available (e.g. elevator, tactile paving, staff assistance)

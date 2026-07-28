@@ -31,11 +31,19 @@ with monthly_metrics as (
 
     from {{ ref('fct_train_punctuality') }}
     group by 1, 2, 3, 4
+),
+
+tgv_national_benchmark as (
+    select
+        {{date_trunc('month', 'date')}} as month_start_date,
+        composite_regularity_rate as national_composite_regularity_rate,
+        departure_punctuality_rate as national_departure_punctuality_rate
+    from {{ ref('stg_sncf__regularite_tgv_nationale') }}
 )
 
 select
     -- Dimensions
-    month_start_date,
+    m.month_start_date,
     year,
     month,
     case month
@@ -99,8 +107,14 @@ select
         else null
     end as severe_delay_rate_30min,
 
+    -- Official national TGV benchmark (SNCF's own network-wide indicator, TGV only)
+    case when service_type = 'TGV' then b.national_composite_regularity_rate end as national_composite_regularity_rate,
+    case when service_type = 'TGV' then b.national_departure_punctuality_rate end as national_departure_punctuality_rate,
+
     -- Metadata
     current_timestamp as _dbt_loaded_at
 
-from monthly_metrics
-order by month_start_date, service_type
+from monthly_metrics m
+left join tgv_national_benchmark b
+    on m.month_start_date = b.month_start_date
+order by m.month_start_date, service_type
