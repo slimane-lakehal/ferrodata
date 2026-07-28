@@ -27,7 +27,9 @@ All data from [SNCF Open Data](https://ressources.data.sncf.com/):
 - TGV punctuality by route (monthly, 2018-present)
 - Intercites punctuality by route (monthly, 2014-present)
 - TER punctuality by region (monthly, 2013-present)
+- TGV punctuality, national aggregate (semi-annual, 2015-present)
 - Station master list (network metadata)
+- Station accessibility equipment (partial coverage, incrementally maintained)
 
 ## Setup
 
@@ -130,15 +132,17 @@ Cleaned and typed source data:
 - `stg_sncf__regularite_tgv`: TGV punctuality
 - `stg_sncf__regularite_intercites`: Intercites punctuality
 - `stg_sncf__regularite_ter`: TER regional punctuality
+- `stg_sncf__regularite_tgv_nationale`: TGV punctuality, national aggregate
+- `stg_sncf__accessibilite_gares`: Station accessibility equipment (one row per station/equipment pair)
 
 ### Marts
 
 Analytics-ready tables:
 
-- `dim_stations`: Station dimension with geography and service metadata
+- `dim_stations`: Station dimension with geography, service and accessibility metadata
 - `fct_train_punctuality`: Unified punctuality metrics across all services
 - `fct_tgv_delays_by_cause`: Delay cause analysis for TGV
-- `agg_monthly_service_performance`: Monthly trends by service type
+- `agg_monthly_service_performance`: Monthly trends by service type, with official national TGV benchmark
 - `agg_station_performance`: Station-level performance metrics
 - `agg_route_performance`: Route-level performance ratings
 

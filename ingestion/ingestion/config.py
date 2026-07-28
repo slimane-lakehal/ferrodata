@@ -52,6 +52,16 @@ SOURCES = [
         api_dataset_id="liste-des-gares",
         description="Liste des gares du Réseau Ferré National.",
     ),
+    SourceConfig(
+        name="regularite_tgv_nationale",
+        api_dataset_id="reglarite-mensuelle-tgv-nationale",
+        description="Régularité mensuelle TGV au niveau national (indicateur global, semestriel).",
+    ),
+    SourceConfig(
+        name="equipements_accessibilite_gares",
+        api_dataset_id="equipements-accessibilite-en-gares",
+        description="Equipements d'accessibilité PMR recensés par gare.",
+    ),
 ]
 
 # Map for easy lookup by name
